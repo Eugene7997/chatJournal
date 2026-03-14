@@ -13,6 +13,7 @@ export default async function Navbar() {
                         <a href="/">Home</a>
                         <a href="/about">About</a>
                         {!session && <a href="/login">Login or Sign up</a>}
+                        {session && <a href="/chat">Chat</a>}
                         {session && <a href="/account">Account</a>}
                     </nav>
                     {session?.user?.picture && <NavbarProfile src={session.user.picture} />}
