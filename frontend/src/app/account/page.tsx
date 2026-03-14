@@ -1,11 +1,11 @@
 import { auth0 } from "@/lib/auth/auth0";
-import AuthBox from "@/src/components/AuthBox";
+import { redirect } from "next/navigation";
 
 export default async function AccountPage() {
     const session = await auth0.getSession();
 
     if (!session) {
-        return <AuthBox/>
+        redirect("/login");
     }
 
     return (
