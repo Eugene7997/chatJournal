@@ -1,0 +1,12 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="#4F46E5"/>
+
+  <!-- Chat bubble -->
+  <path d="M60 80c0-11 9-20 20-20h40c11 0 20 9 20 20v20c0 11-9 20-20 20h-20l-20 20v-20h-20c-11 0-20-9-20-20v-20z" fill="#FFFFFF"/>
+
+  <!-- Journal lines -->
+  <line x1="85" y1="70" x2="125" y2="70" stroke="#4F46E5" stroke-width="3" stroke-linecap="round"/>
+  <line x1="85" y1="85" x2="125" y2="85" stroke="#4F46E5" stroke-width="3" stroke-linecap="round"/>
+  <line x1="85" y1="100" x2="125" y2="100" stroke="#4F46E5" stroke-width="3" stroke-linecap="round"/>
+</svg>
