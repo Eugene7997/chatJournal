@@ -12,7 +12,7 @@ export default async function Navbar() {
                     <nav className="flex justify-center gap-8">
                         <a href="/">Home</a>
                         <a href="/about">About</a>
-                        <a href="/login">Login or Sign up</a>
+                        {!session && <a href="/login">Login or Sign up</a>}
                         {session && <a href="/account">Account</a>}
                     </nav>
                     {session?.user?.picture && <NavbarProfile src={session.user.picture} />}
