@@ -1,13 +1,23 @@
 import { auth0 } from "@/lib/auth/auth0";
+import query from "@/lib/db/db";
 
 export async function DELETE() {
     const session = await auth0.getSession();
 
     if (!session) {
-        return new Response("Unauthorized", { status: 401 });
+        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
     }
 
     const userId = session.user.sub;
+
+    try {
+        await query(
+            `DELETE FROM users WHERE sub = $1`,
+            [userId]
+        );
+    } catch (error) {
+        return new Response(JSON.stringify(`Database account deletion FAILED: ${error}`), { status: 500 });
+    }
 
     const params = new URLSearchParams({
         grant_type: "client_credentials",
@@ -26,7 +36,7 @@ export async function DELETE() {
         });
         const data = await response.json();
         if (!data) {
-            return new Response("Something is wrong with the data", { status: 500 }); 
+            return new Response(JSON.stringify("Something is wrong with the data"), { status: 500 });
         }
         const accessToken = data.access_token;
 
