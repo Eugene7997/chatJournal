@@ -1,21 +1,18 @@
 import { auth0 } from "@/lib/auth/auth0";
 import { redirect } from "next/navigation";
+import Account from "@/components/Account";
+import type { User } from "@/lib/types/types";
 
 export default async function AccountPage() {
     const session = await auth0.getSession();
-
     if (!session) {
         redirect("/login");
     }
 
+    const user: User = session.user;
+
     return (
-        <>
-            <p>Logged in as {session.user.email}</p>
-
-            <h1>User Profile</h1>
-            <pre>{JSON.stringify(session.user, null, 2)}</pre>
-
-            <a href="/auth/logout">Logout</a>
-        </>
+        <Account user={user} />
     );
+    
 }
