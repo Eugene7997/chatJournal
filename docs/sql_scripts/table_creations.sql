@@ -8,12 +8,12 @@ create table public.users (
 
 create table public.chat_sessions (
     id uuid primary key default gen_random_uuid(),
-    user_id uuid not null,
+    sub text not null,
     created_at timestamptz default now(),
 
     constraint chat_sessions_user_fk
-    foreign key (user_id)
-    references users(id)
+    foreign key (sub)
+    references users(sub)
     on delete cascade
 );
 
