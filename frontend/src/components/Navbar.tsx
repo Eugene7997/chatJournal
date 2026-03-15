@@ -10,11 +10,11 @@ export default async function Navbar() {
                 <img src="/logo.svg" alt="ChatJournal logo" className="h-8 w-8" />
                 <div className="flex items-center gap-8">
                     <nav className="flex justify-center gap-8">
-                        <a href="/">Home</a>
-                        <a href="/about">About</a>
-                        {!session && <a href="/login">Login or Sign up</a>}
-                        {session && <a href="/chat">Chat</a>}
-                        {session && <a href="/account">Account</a>}
+                        <a href="/" className="hover:underline">Home</a>
+                        <a href="/about" className="hover:underline">About</a>
+                        {!session && <a href="/login" className="hover:underline">Login or Sign up</a>}
+                        {session && <a href="/chat" className="hover:underline">Chat</a>}
+                        {session && <a href="/account" className="hover:underline">Account</a>}
                     </nav>
                     {session?.user?.picture && <NavbarProfile src={session.user.picture} />}
                 </div>
