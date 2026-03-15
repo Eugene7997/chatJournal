@@ -4,12 +4,40 @@ export interface ButtonProps {
 }
 
 export interface User {
-    name?           : string  | undefined,
-    nickname?       : string  | undefined,
-    picture?        : string  | undefined,
-    sub             : string  | undefined,
-    given_name?     : string  | undefined,
-    family_name?    : string  | undefined,
-    email?          : string  | undefined,
-    email_verified? : boolean | undefined
+    name?           : string    | undefined,
+    nickname?       : string    | undefined,
+    picture?        : string    | undefined,
+    sub             : string    | undefined,
+    given_name?     : string    | undefined,
+    family_name?    : string    | undefined,
+    email?          : string    | undefined,
+    email_verified? : boolean   | undefined
+}
+
+export interface ChatCompletionResponse {
+    id: string;
+    model: string;
+    choices: Array<{
+        index: number;
+        message: {
+            role: string;
+            content: string;
+        };
+        finish_reason: string;
+    }>;
+    usage: Usage;
+}
+
+export interface Usage {
+    prompt_tokens: number;
+    completion_tokens: number;
+    total_tokens: number;
+    prompt_tokens_details?: {
+        cached_tokens?: number; // Also called cached_input_tokens
+        cache_creation_input_tokens?: number;
+        audio_tokens?: number;
+    };
+    completion_tokens_details?: {
+        reasoning_tokens?: number;
+    };
 }
