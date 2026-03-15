@@ -15,7 +15,7 @@ export default function Chat() {
 
     async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         e.preventDefault()
-
+        
         let response = await fetch("/api/chat", {
             method: "POST",
             body: JSON.stringify({
@@ -27,6 +27,8 @@ export default function Chat() {
                 "Content-Type": "application/json"
             }
         });
+
+        setUserMsg("");
 
         if (!stream) {
             let data = await response.json();
@@ -116,6 +118,7 @@ export default function Chat() {
                         ref={textareaRef}
                         className="flex-1 border-2 border-gray-300 rounded-xl p-4"
                         placeholder="Start typing!"
+                        value={userMsg}
                         onChange={(e) => setUserMsg(e.target.value)}
                     />
                     <button
