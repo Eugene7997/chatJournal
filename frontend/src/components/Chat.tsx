@@ -104,30 +104,33 @@ export default function Chat() {
     }, []);
 
     return (
-        <>
-            <div className="flex-1 flex justify-center items-center">
-                {chatBotResponse}
-            </div>
-            <footer className="flex-none backdrop-blur-lg border-t border-slate-200">
-                <form
-                    ref={formRef}
-                    className="w-full flex gap-8 px-8 py-4"
-                    onSubmit={handleSubmit}
-                >
-                    <textarea
-                        ref={textareaRef}
-                        className="flex-1 border-2 border-gray-300 rounded-xl p-4"
-                        placeholder="Start typing!"
-                        value={userMsg}
-                        onChange={(e) => setUserMsg(e.target.value)}
-                    />
-                    <button
-                        className="border-gray-300 rounded-xl"
+        <div className="flex-1 flex">
+            <ChatSideBar />
+            <div className="flex-8 flex flex-col">
+                <div className="flex-1 flex justify-center items-center">
+                    {chatBotResponse}
+                </div>
+                <footer className="flex-none backdrop-blur-lg border-t border-slate-200">
+                    <form
+                        ref={formRef}
+                        className="w-full flex gap-8 px-8 py-4"
+                        onSubmit={handleSubmit}
                     >
-                        Send
-                    </button>
-                </form>
-            </footer>
-        </>
+                        <textarea
+                            ref={textareaRef}
+                            className="flex-1 border-2 border-gray-300 rounded-xl p-4"
+                            placeholder="Start typing!"
+                            value={userMsg}
+                            onChange={(e) => setUserMsg(e.target.value)}
+                        />
+                        <button
+                            className="border-gray-300 rounded-xl"
+                        >
+                            Send
+                        </button>
+                    </form>
+                </footer>
+            </div>
+        </div>
     );
 }
