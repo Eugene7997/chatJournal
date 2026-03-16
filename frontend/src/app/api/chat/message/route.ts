@@ -22,9 +22,6 @@ export async function POST(request: NextRequest) {
     if (!role) {
         return new Response(JSON.stringify("Missing 'role' in request body"), { status: 400 });
     }
-    // if (!stream) {
-    //     stream = true;
-    // }
     if (!model) {
         model = "google/gemini-2.5-flash-lite"
     }
