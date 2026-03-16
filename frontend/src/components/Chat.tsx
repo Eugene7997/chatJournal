@@ -104,7 +104,7 @@ export default function Chat() {
     }, []);
 
     return (
-        <div className="flex-1 flex">
+        <div className="absolute inset-0 flex">
             <ChatSideBar />
             <div className="flex-8 flex flex-col">
                 <div className="flex-1 flex justify-center items-center">
