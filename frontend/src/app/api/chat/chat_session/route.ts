@@ -40,7 +40,7 @@ export async function GET() {
 
     try {
         const result = await query(
-            `SELECT id FROM chat_sessions WHERE sub = $1`,
+            `SELECT id FROM chat_sessions WHERE sub = $1 ORDER BY created_at DESC`,
             [userId]
         );
 
