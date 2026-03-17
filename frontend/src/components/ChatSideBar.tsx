@@ -6,7 +6,7 @@ export default function ChatSideBar({ sessions, onItemClick }: { sessions: strin
             <div>
                 <h1>Sessions</h1>
             </div>
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto no-scrollbar">
                 <ul className="flex flex-col gap-4 p-2 ">
                     {sessions && sessions.map((session) => (
                         <li key={session} className="cursor-pointer" onClick={() => onItemClick(session)}>
