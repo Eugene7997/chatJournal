@@ -1,7 +1,7 @@
 import { auth0 } from "@/lib/auth/auth0";
 import { redirect } from "next/navigation";
-import Chat from "@/components/Chat";
 import query from "@/lib/db/db";
+import Chat from "@/components/Chat";
 
 export default async function ChatPage() {
     const session = await auth0.getSession();
