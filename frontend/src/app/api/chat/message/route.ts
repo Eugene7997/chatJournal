@@ -8,8 +8,6 @@ export async function POST(request: NextRequest) {
 
     const session = await auth0.getSession();
 
-    let result;
-
     if (!session) {
         return new Response(JSON.stringify("Unauthorized"), { status: 401 });
     }
@@ -54,7 +52,7 @@ export async function POST(request: NextRequest) {
 
         if (!stream) {
             let data: ChatCompletionResponse = await response.json();
-            result = data.choices[0].message.content;
+            let result = data.choices[0].message.content;
             return new Response(JSON.stringify({ message: result }), { status: 200 })
         }
         else {
