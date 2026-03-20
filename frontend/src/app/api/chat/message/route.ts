@@ -1,8 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth0 } from "@/lib/auth/auth0";
 import type { ChatCompletionResponse } from "@/lib/types/types";
+import query from "@/lib/db/db";
 
 const apiKey = process.env.OPENROUTER_API_KEY;
+
+export async function GET(request: NextRequest) {
+    const session = await auth0.getSession();
+    if (!session) {
+        return new Response(JSON.stringify("Unauthorized"), { status: 401 });
+    }
+
+    const searchParams = request.nextUrl.searchParams;
+    const sessionId = searchParams.get('sessionId');
+    // TODO: Decide whether to use userId. But requires schema changes.
+    // const userId = session.user.sub;
+
+    try {
+        const result = await query(
+            `SELECT * FROM chat_messages WHERE session_id = $1 ORDER BY created_at`,
+            [sessionId]
+        );
+
+        const messages: string[] = result.rows;
+
+        return new Response(JSON.stringify({ messages }), { status: 200 });
+    }
+    catch (error) {
+        console.log(`error: ${error}`)
+        return new Response(JSON.stringify(`Server error: ${error}`), { status: 500 });
+    }
+}
 
 export async function POST(request: NextRequest) {
 
