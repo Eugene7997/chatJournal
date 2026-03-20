@@ -41,3 +41,15 @@ export interface Usage {
         reasoning_tokens?: number;
     };
 }
+
+export interface ChatMessage {
+    id              : string; // UUID
+    session_id      : string; // UUID
+    role            : "user" | "assistant" | "system";
+    content         : string;
+    message_type    : "text" | "audio" | "image";
+    audio_url       : string | null;
+    audio_duration  : number | null;
+    model           : string | null;
+    created_at      : string; // ISO timestamp
+}
