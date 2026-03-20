@@ -105,7 +105,7 @@ export default function Chat() {
 
     return (
         <div className="absolute inset-0 flex">
-            <ChatSideBar />
+            <ChatSideBar sessions={sessions} onItemClick={handleSessionClick} loading={loadingSessionBar} />
             <div className="flex-8 flex flex-col">
                 <div className="flex-1 flex justify-center items-center">
                     {chatBotResponse}
