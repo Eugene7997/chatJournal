@@ -24,8 +24,8 @@ export async function POST() {
         return new Response(JSON.stringify({ chat_session_id: chatSessionId }), { status: 200 });
     }
     catch (error) {
-        console.log(`error: ${error}`)
-        return new Response(JSON.stringify(`Database account deletion FAILED: ${error}`), { status: 500 });
+        console.error(`error: ${error}`)
+        return new Response(JSON.stringify(`Server error: ${error}`), { status: 500 });
     }
 }
 
@@ -49,7 +49,7 @@ export async function GET() {
         return new Response(JSON.stringify({ sessionIds }), { status: 200 });
     }
     catch (error) {
-        console.log(`error: ${error}`)
-        return new Response(JSON.stringify(`Database account deletion FAILED: ${error}`), { status: 500 });
+        console.error(`error: ${error}`)
+        return new Response(JSON.stringify(`Server error: ${error}`), { status: 500 });
     }
 }
