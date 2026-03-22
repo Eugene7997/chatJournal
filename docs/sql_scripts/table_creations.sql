@@ -33,3 +33,20 @@ create table public.chat_messages (
     references chat_sessions(id)
     on delete cascade
 );
+
+create table public.chat_completion_usage (
+    id uuid primary key default gen_random_uuid(),
+    message_id uuid not null,
+    openrouter_id text,
+    provider text,
+    prompt_tokens integer,
+    completion_tokens integer,
+    total_tokens integer,
+    cost numeric(18, 10),
+    created_at timestamptz default now(),
+
+    constraint chat_completion_usage_message_fk
+    foreign key (message_id)
+    references chat_messages(id)
+    on delete cascade
+);
