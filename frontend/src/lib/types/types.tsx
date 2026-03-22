@@ -17,6 +17,7 @@ export interface User {
 export interface ChatCompletionResponse {
     id: string;
     model: string;
+    provider: string;
     choices: Array<{
         index: number;
         message: {
@@ -32,6 +33,7 @@ export interface Usage {
     prompt_tokens: number;
     completion_tokens: number;
     total_tokens: number;
+    cost: number;
     prompt_tokens_details?: {
         cached_tokens?: number; // Also called cached_input_tokens
         cache_creation_input_tokens?: number;
