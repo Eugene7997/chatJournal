@@ -40,7 +40,9 @@ export async function POST(request: NextRequest) {
         return new Response(JSON.stringify("Unauthorized"), { status: 401 });
     }
 
-    let { message, role, stream, model } = await request.json();
+    const body = await request.json();
+    const { message, role, stream, sessionId } = body 
+    let { model } = body;
 
     if (!message) {
         return new Response(JSON.stringify("Missing 'message' in request body"), { status: 400 });
@@ -68,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-        let response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -82,9 +84,45 @@ export async function POST(request: NextRequest) {
         }
 
         if (!stream) {
-            let data: ChatCompletionResponse = await response.json();
-            let result = data.choices[0].message.content;
-            return new Response(JSON.stringify({ message: result }), { status: 200 })
+            const data: ChatCompletionResponse = await response.json();
+
+            if (sessionId) {
+                const assistantContent = data.choices[0]?.message?.content;
+
+                // User message
+                await query(
+                    `INSERT INTO chat_messages (session_id, role, content, message_type, model)
+                     VALUES ($1, $2, $3, 'text', $4)`,
+                    [sessionId, role, message, model]
+                );
+
+                // Chatbot message
+                const assistantMsgResult = await query(
+                    `INSERT INTO chat_messages (session_id, role, content, message_type, model)
+                     VALUES ($1, 'assistant', $2, 'text', $3) RETURNING id`,
+                    [sessionId, assistantContent, data.model]
+                );
+
+                const assistantMessageId = assistantMsgResult.rows[0]?.id;
+                if (assistantMessageId) {
+                    await query(
+                        `INSERT INTO chat_completion_usage
+                            (message_id, openrouter_id, provider, prompt_tokens, completion_tokens, total_tokens, cost)
+                         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                        [
+                            assistantMessageId,
+                            data.id,
+                            data.provider ?? null,
+                            data.usage?.prompt_tokens ?? null,
+                            data.usage?.completion_tokens ?? null,
+                            data.usage?.total_tokens ?? null,
+                            data.usage?.cost ?? null,
+                        ]
+                    );
+                }
+            }
+
+            return new Response(JSON.stringify({ data }), { status: 200 })
         }
         else {
             return new Response(response.body, {
