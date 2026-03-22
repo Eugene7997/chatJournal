@@ -35,6 +35,7 @@ export default function Chat() {
             setChatBotResponse(data);
             return;
         }
+        // TODO: Implement logic for stream cancellation
 
         const reader = response.body?.getReader();
         if (!reader) throw new Error("No stream");

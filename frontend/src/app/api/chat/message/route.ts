@@ -60,8 +60,11 @@ export async function POST(request: NextRequest) {
         model,
         stream,
         messages: [
+            // TODO: get all conversation past messages instead of just current message? 
             { role: "user", content: message }
         ]
+        // TODO: consider adding tools
+        // tools
     }
 
     try {
