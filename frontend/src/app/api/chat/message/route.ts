@@ -96,10 +96,10 @@ export async function POST(request: NextRequest) {
         }
     }
 
-    catch (err: any) {
-        console.log(`Error: ${err}`);
-        if (err instanceof Error) {
-            return new Response(JSON.stringify(err.toString()), { status: 500 });
+    catch (error) {
+        console.log(`Error: ${error}`);
+        if (error instanceof Error) {
+            return new Response(JSON.stringify(error.toString()), { status: 500 });
         }
         else {
             return new Response(JSON.stringify("Some dumb ship happened"), { status: 500 });
