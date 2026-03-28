@@ -23,7 +23,8 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
     const [sendingUserMessage, setSendingUserMessage] = useState<boolean>(false);
     const [loadingSessionBar, setLoadingSessionBar] = useState<boolean>(false);
     const [loadingMessages, setLoadingMessages] = useState<boolean>(false);
-    const [journal, setJournal] = useState<string>("");
+    const [journalContent, setJournalContent] = useState<string>("");
+    const [journalTitle, setJournalTitle] = useState<string>("");
     const [journalSaved, setJournalSaved] = useState<boolean>(false);
     const [generatingJournal, setGeneratingJournal] = useState<boolean>(false);
 
@@ -261,7 +262,8 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
             
             const data = await response.json();
 
-            setJournal(data.journal ?? "");
+            setJournalContent(data.content ?? "");
+            setJournalTitle(data.title ?? "");
             setJournalSaved(false);
         }
         catch (error) {
@@ -271,12 +273,12 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
     }
 
     async function saveJournal() {
-        if (!currentChatSession || !journal) return;
+        if (!currentChatSession || !journalContent) return;
         try {
             await fetch("/api/journals", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ sessionId: currentChatSession, content: journal }),
+                body: JSON.stringify({ sessionId: currentChatSession, title: journalTitle, content: journalContent }),
             });
             setJournalSaved(true);
         }
@@ -353,7 +355,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
 
     return (
         <div className="absolute inset-0 flex">
-            {journal && <JournalModal journal={journal} onClose={() => setJournal("")} onSave={saveJournal} />}
+            {journalContent && <JournalModal title={journalTitle} content={journalContent} onClose={() => setJournalContent("")} onSave={saveJournal} />}
             <ChatSideBar sessions={sessions} onItemClick={handleSessionClick} loading={loadingSessionBar} />
             <div className="flex-8 flex flex-col">
                 {currentChatSession && (

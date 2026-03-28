@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { IoMdClose } from "react-icons/io";
 
-export default function JournalModal({ journal, onClose, onSave }: { journal: string; onClose: () => void; onSave: () => Promise<void> }) {
+export default function JournalModal({ title, content, onClose, onSave }: { title: string; content: string; onClose: () => void; onSave: () => Promise<void> }) {
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
 
@@ -12,13 +12,13 @@ export default function JournalModal({ journal, onClose, onSave }: { journal: st
         setSaving(false);
         setSaved(true);
     }
-    const lines = journal.split("\n");
+    const lines = content.split("\n");
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-background border border-current/10 rounded-2xl shadow-xl w-full max-w-lg mx-4 flex flex-col max-h-[80vh]">
                 <div className="flex items-center justify-between px-6 py-4 border-b border-current/10">
-                    <h2 className="text-lg font-semibold">Journal Entry</h2>
+                    <h2 className="text-lg font-semibold">{title || "Journal Entry"}</h2>
                     <button
                         onClick={onClose}
                         className="opacity-40 hover:opacity-70 text-xl leading-none transition-opacity"
