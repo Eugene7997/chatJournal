@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import ChatSideBar from "@/src/components/ChatSideBar";
 import JournalModal from "@/src/components/JournalModal";
 import type { ChatCompletionResponse, ChatMessage, Usage } from "@/lib/types/types";
 
 export default function Chat({ initialSessionId }: { initialSessionId?: string }) {
+    const router = useRouter();
     const [messages, setMessages] = useState<string[]>([]);
     const [sessions, setSessions] = useState<string[]>([]);
     const [currentChatSession, setCurrentChatSession] = useState<string>("");
@@ -240,6 +242,7 @@ export default function Chat({ initialSessionId }: { initialSessionId?: string }
     function handleSessionClick(index: string) {
         setCurrentChatSession(index);
         fetchSessionMessages(index);
+        router.replace(`/chat?session=${index}`);
     }
 
     async function generateJournal() {
