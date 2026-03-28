@@ -55,6 +55,7 @@ create table public.journals (
     id uuid primary key default gen_random_uuid(),
     session_id uuid not null,
     sub text not null,
+    title text not null default '',
     content text not null,
     created_at timestamptz default now(),
 
