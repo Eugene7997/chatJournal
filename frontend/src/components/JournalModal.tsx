@@ -1,7 +1,17 @@
 "use client";
+import { useState } from "react";
 import { IoMdClose } from "react-icons/io";
 
-export default function JournalModal({ journal, onClose }: { journal: string; onClose: () => void }) {
+export default function JournalModal({ journal, onClose, onSave }: { journal: string; onClose: () => void; onSave: () => Promise<void> }) {
+    const [saving, setSaving] = useState(false);
+    const [saved, setSaved] = useState(false);
+
+    async function handleSave() {
+        setSaving(true);
+        await onSave();
+        setSaving(false);
+        setSaved(true);
+    }
     const lines = journal.split("\n");
 
     return (
@@ -41,7 +51,14 @@ export default function JournalModal({ journal, onClose }: { journal: string; on
                         })}
                     </div>
                 </div>
-                <div className="px-6 py-4 border-t border-current/10 flex justify-end">
+                <div className="px-6 py-4 border-t border-current/10 flex justify-end gap-3">
+                    <button
+                        onClick={handleSave}
+                        disabled={saving || saved}
+                        className="px-4 py-2 rounded-xl border border-current font-semibold text-sm hover:opacity-70 disabled:opacity-30 transition-opacity"
+                    >
+                        {saving ? "Saving..." : saved ? "Saved!" : "Save Journal"}
+                    </button>
                     <button
                         onClick={onClose}
                         className="px-4 py-2 rounded-xl border border-current font-semibold text-sm hover:opacity-60 transition-opacity"

@@ -22,6 +22,7 @@ export default function Chat() {
     const [loadingSessionBar, setLoadingSessionBar] = useState<boolean>(false);
     const [loadingMessages, setLoadingMessages] = useState<boolean>(false);
     const [journal, setJournal] = useState<string>("");
+    const [journalSaved, setJournalSaved] = useState<boolean>(false);
     const [generatingJournal, setGeneratingJournal] = useState<boolean>(false);
 
     async function saveMessage(
@@ -256,13 +257,29 @@ export default function Chat() {
             }
             
             const data = await response.json();
-            
+
             setJournal(data.journal ?? "");
+            setJournalSaved(false);
         }
         catch (error) {
             console.error(`Journal generation error: ${error}`);
         }
         setGeneratingJournal(false);
+    }
+
+    async function saveJournal() {
+        if (!currentChatSession || !journal) return;
+        try {
+            await fetch("/api/journals", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sessionId: currentChatSession, content: journal }),
+            });
+            setJournalSaved(true);
+        }
+        catch (error) {
+            console.error(`Failed to save journal: ${error}`);
+        }
     }
 
     async function fetchSessions() {
@@ -329,7 +346,7 @@ export default function Chat() {
 
     return (
         <div className="absolute inset-0 flex">
-            {journal && <JournalModal journal={journal} onClose={() => setJournal("")} />}
+            {journal && <JournalModal journal={journal} onClose={() => setJournal("")} onSave={saveJournal} />}
             <ChatSideBar sessions={sessions} onItemClick={handleSessionClick} loading={loadingSessionBar} />
             <div className="flex-8 flex flex-col">
                 {currentChatSession && (
