@@ -9,6 +9,7 @@ create table public.users (
 create table public.chat_sessions (
     id uuid primary key default gen_random_uuid(),
     sub text not null,
+    name text,
     created_at timestamptz default now(),
 
     constraint chat_sessions_user_fk
