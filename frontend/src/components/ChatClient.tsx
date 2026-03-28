@@ -4,12 +4,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import ChatSideBar from "@/src/components/ChatSideBar";
 import JournalModal from "@/src/components/JournalModal";
-import type { ChatCompletionResponse, ChatMessage, Usage } from "@/lib/types/types";
+import type { ChatCompletionResponse, ChatMessage, ChatSession, Usage } from "@/lib/types/types";
 
 export default function ChatClient({ initialSessionId }: { initialSessionId?: string }) {
     const router = useRouter();
     const [messages, setMessages] = useState<string[]>([]);
-    const [sessions, setSessions] = useState<string[]>([]);
+    const [sessions, setSessions] = useState<ChatSession[]>([]);
     const [currentChatSession, setCurrentChatSession] = useState<string>("");
     const [userMsg, setUserMsg] = useState<string>("");
     const [chatBotResponse, setChatBotResponse] = useState<string>("");
@@ -74,7 +74,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
 
                 chatSessionId = data.chat_session_id;
                 setCurrentChatSession(chatSessionId);
-                setSessions([chatSessionId, ...sessions]);
+                setSessions([{ id: chatSessionId, name: null }, ...sessions]);
             }
             catch (error) {
                 if (error instanceof Error) {
@@ -258,7 +258,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                 return;
             }
 
-            setSessions(prev => prev.filter(s => s !== sessionId));
+            setSessions(prev => prev.filter(s => s.id !== sessionId));
 
             if (currentChatSession === sessionId) {
                 setCurrentChatSession("");
@@ -326,11 +326,11 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
 
             const data = await response.json();
 
-            if (!data || !data.sessionIds) {
+            if (!data || !data.sessions) {
                 throw new Error("Invalid response from server");
             }
 
-            setSessions(data.sessionIds);
+            setSessions(data.sessions);
         }
         catch (error) {
             setError(`Unable to load session, ${currentChatSession}.\n${error}`);

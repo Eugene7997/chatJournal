@@ -53,6 +53,11 @@ export interface Journal {
     created_at  : string; // ISO timestamp
 }
 
+export interface ChatSession {
+    id   : string;
+    name : string | null;
+}
+
 export interface ChatMessage {
     id              : string; // UUID
     session_id      : string; // UUID

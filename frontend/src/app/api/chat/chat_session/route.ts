@@ -69,13 +69,13 @@ export async function GET() {
 
     try {
         const result = await query(
-            `SELECT id FROM chat_sessions WHERE sub = $1 ORDER BY created_at DESC`,
+            `SELECT id, name FROM chat_sessions WHERE sub = $1 ORDER BY created_at DESC`,
             [userId]
         );
 
-        const sessionIds: string[] = result.rows.map(row => row.id);
+        const sessions = result.rows.map(row => ({ id: row.id, name: row.name ?? null }));
 
-        return new Response(JSON.stringify({ sessionIds }), { status: 200 });
+        return new Response(JSON.stringify({ sessions }), { status: 200 });
     }
     catch (error) {
         console.error(`error: ${error}`)
