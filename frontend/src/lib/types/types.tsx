@@ -44,6 +44,14 @@ export interface Usage {
     };
 }
 
+export interface Journal {
+    id          : string; // UUID
+    session_id  : string; // UUID
+    sub         : string;
+    content     : string;
+    created_at  : string; // ISO timestamp
+}
+
 export interface ChatMessage {
     id              : string; // UUID
     session_id      : string; // UUID
