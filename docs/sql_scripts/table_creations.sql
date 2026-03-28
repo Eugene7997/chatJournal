@@ -50,3 +50,21 @@ create table public.chat_completion_usage (
     references chat_messages(id)
     on delete cascade
 );
+
+create table public.journals (
+    id uuid primary key default gen_random_uuid(),
+    session_id uuid not null,
+    sub text not null,
+    content text not null,
+    created_at timestamptz default now(),
+
+    constraint journals_session_fk
+    foreign key (session_id)
+    references chat_sessions(id)
+    on delete cascade,
+
+    constraint journals_user_fk
+    foreign key (sub)
+    references users(sub)
+    on delete cascade
+);
