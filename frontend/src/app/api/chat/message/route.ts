@@ -58,12 +58,22 @@ export async function POST(request: NextRequest) {
         return new Response(JSON.stringify("OPENROUTER_API_KEY is not set on the server"), { status: 500 });
     }
 
+    // Fetch conversation history for this session
+    let historyMessages: { role: string; content: string }[] = [];
+    if (sessionId) {
+        const historyResult = await query(
+            `SELECT role, content FROM chat_messages WHERE session_id = $1 ORDER BY created_at`,
+            [sessionId]
+        );
+        historyMessages = historyResult.rows;
+    }
+
     const payLoad = {
         model,
         stream,
         messages: [
-            // TODO: get all conversation past messages instead of just current message? 
-            { role: "user", content: message }
+            ...historyMessages,
+            { role, content: message }
         ]
         // TODO: consider adding tools
         // tools
