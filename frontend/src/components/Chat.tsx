@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import ChatSideBar from "@/src/components/ChatSideBar";
+import JournalModal from "@/src/components/JournalModal";
 import type { ChatCompletionResponse, ChatMessage, Usage } from "@/lib/types/types";
 
 export default function Chat() {
@@ -20,6 +21,8 @@ export default function Chat() {
     const [sendingUserMessage, setSendingUserMessage] = useState<boolean>(false);
     const [loadingSessionBar, setLoadingSessionBar] = useState<boolean>(false);
     const [loadingMessages, setLoadingMessages] = useState<boolean>(false);
+    const [journal, setJournal] = useState<string>("");
+    const [generatingJournal, setGeneratingJournal] = useState<boolean>(false);
 
     async function saveMessage(
         sessionId: string,
@@ -238,6 +241,30 @@ export default function Chat() {
         fetchSessionMessages(index);
     }
 
+    async function generateJournal() {
+        if (!currentChatSession) return;
+        setGeneratingJournal(true);
+        try {
+            const response = await fetch("/api/chat/journal", {
+                method: "POST",
+                body: JSON.stringify({ sessionId: currentChatSession }),
+            });
+
+            if (!response.ok) {
+                console.error(`Journal generation failed: ${response.statusText}`);
+                return;
+            }
+            
+            const data = await response.json();
+            
+            setJournal(data.journal ?? "");
+        }
+        catch (error) {
+            console.error(`Journal generation error: ${error}`);
+        }
+        setGeneratingJournal(false);
+    }
+
     async function fetchSessions() {
         setLoadingSessionBar(true);
 
@@ -302,8 +329,20 @@ export default function Chat() {
 
     return (
         <div className="absolute inset-0 flex">
+            {journal && <JournalModal journal={journal} onClose={() => setJournal("")} />}
             <ChatSideBar sessions={sessions} onItemClick={handleSessionClick} loading={loadingSessionBar} />
             <div className="flex-8 flex flex-col">
+                {currentChatSession && (
+                    <div className="flex-none flex justify-end px-6 py-2 border-b border-slate-100">
+                        <button
+                            onClick={generateJournal}
+                            disabled={generatingJournal}
+                            className="text-sm px-3 py-1.5 rounded-xl border border-current font-semibold hover:opacity-60 disabled:opacity-30 transition-opacity"
+                        >
+                            {generatingJournal ? "Generating..." : "Generate Journal"}
+                        </button>
+                    </div>
+                )}
                 {error ? (
                     <div className="flex-1 flex justify-center items-center">
                         {error}
