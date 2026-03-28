@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { sessionId, content } = body;
+    const { sessionId, title, content } = body;
 
     if (!sessionId || !content) {
         return new Response(JSON.stringify("Missing sessionId or content"), { status: 400 });
@@ -17,8 +17,8 @@ export async function POST(request: NextRequest) {
 
     try {
         const result = await query<{ id: string }>(
-            `INSERT INTO journals (session_id, sub, content) VALUES ($1, $2, $3) RETURNING id`,
-            [sessionId, session.user.sub, content]
+            `INSERT INTO journals (session_id, sub, title, content) VALUES ($1, $2, $3, $4) RETURNING id`,
+            [sessionId, session.user.sub, title ?? "", content]
         );
         return new Response(JSON.stringify({ journal_id: result.rows[0].id }), { status: 201 });
     } 

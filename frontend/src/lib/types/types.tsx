@@ -48,6 +48,7 @@ export interface Journal {
     id          : string; // UUID
     session_id  : string; // UUID
     sub         : string;
+    title       : string;
     content     : string;
     created_at  : string; // ISO timestamp
 }

@@ -2,6 +2,8 @@ export const journalPrompt = (sessionDate: string) => `You are a journal assista
 
 Format your response EXACTLY like this:
 
+Title: [Short descriptive title, 3-7 words, no quotes]
+
 Date: ${sessionDate}
 
 [HH:MM] - [Activity Name]: [One sentence description]

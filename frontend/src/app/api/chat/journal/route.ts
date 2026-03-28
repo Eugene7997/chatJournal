@@ -78,10 +78,16 @@ export async function POST(request: NextRequest) {
         }
 
         const data = await response.json();
-        const journal = data.choices[0]?.message?.content ?? "";
+        const raw: string = data.choices[0]?.message?.content ?? "";
 
-        return new Response(JSON.stringify({ journal }), { status: 200 });
-    } catch (error) {
+        const lines = raw.split("\n");
+        const titleLine = lines.find(l => l.startsWith("Title:")) ?? "";
+        const title = titleLine.replace(/^Title:\s*/, "").trim();
+        const content = lines.filter(l => !l.startsWith("Title:")).join("\n").trimStart();
+
+        return new Response(JSON.stringify({ content, title }), { status: 200 });
+    }
+    catch (error) {
         return new Response(JSON.stringify(`Error generating journal: ${error}`), { status: 500 });
     }
 }
