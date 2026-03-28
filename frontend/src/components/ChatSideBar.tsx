@@ -109,7 +109,7 @@ export default function ChatSideBar({ sessions, onItemClick, onDeleteSession, on
                                         &#8943;
                                     </button>
                                     {openMenuSessionId === session.id && (
-                                        <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded shadow-md z-10 min-w-[100px]">
+                                        <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded shadow-md z-10 min-w-25">
                                             <button
                                                 className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
                                                 onClick={(e) => handleRenameClick(e, session)}
