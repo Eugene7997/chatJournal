@@ -82,3 +82,32 @@ export async function GET() {
         return new Response(JSON.stringify(`Server error: ${error}`), { status: 500 });
     }
 }
+
+export async function PATCH(request: NextRequest) {
+    const session = await auth0.getSession();
+
+    if (!session) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+    }
+
+    const userId = session.user.sub;
+
+    try {
+        const { sessionId, name } = await request.json();
+
+        if (!sessionId || typeof name !== "string") {
+            return new Response(JSON.stringify({ error: "sessionId and name are required" }), { status: 400 });
+        }
+
+        await query(
+            `UPDATE chat_sessions SET name = $1 WHERE id = $2 AND sub = $3`,
+            [name, sessionId, userId]
+        );
+
+        return new Response(JSON.stringify({ message: "renamed" }), { status: 200 });
+    }
+    catch (error) {
+        console.error(`error: ${error}`);
+        return new Response(JSON.stringify(`Server error: ${error}`), { status: 500 });
+    }
+}

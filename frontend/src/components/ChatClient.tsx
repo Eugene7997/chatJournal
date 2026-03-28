@@ -271,6 +271,26 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
         }
     }
 
+    async function handleRenameSession(sessionId: string, name: string) {
+        try {
+            const response = await fetch("/api/chat/chat_session", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sessionId, name }),
+            });
+
+            if (!response.ok) {
+                console.error(`Failed to rename session: ${response.statusText}`);
+                return;
+            }
+
+            setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, name } : s));
+        }
+        catch (error) {
+            console.error(`Error renaming session: ${error}`);
+        }
+    }
+
     async function generateJournal() {
         if (!currentChatSession) return;
         setGeneratingJournal(true);
@@ -381,7 +401,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
     return (
         <div className="absolute inset-0 flex">
             {journalContent && <JournalModal title={journalTitle} content={journalContent} onClose={() => setJournalContent("")} onSave={saveJournal} />}
-            <ChatSideBar sessions={sessions} onItemClick={handleSessionClick} onDeleteSession={handleDeleteSession} loading={loadingSessionBar} />
+            <ChatSideBar sessions={sessions} onItemClick={handleSessionClick} onDeleteSession={handleDeleteSession} onRenameSession={handleRenameSession} loading={loadingSessionBar} />
             <div className="flex-8 flex flex-col">
                 {currentChatSession && (
                     <div className="flex-none flex justify-end px-6 py-2 border-b border-slate-100">
