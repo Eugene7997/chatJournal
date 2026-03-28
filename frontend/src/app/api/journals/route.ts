@@ -35,7 +35,7 @@ export async function GET() {
 
     try {
         const result = await query(
-            `SELECT id, session_id, sub, content, created_at
+            `SELECT id, session_id, sub, title, content, created_at
              FROM journals
              WHERE sub = $1
              ORDER BY created_at DESC`,

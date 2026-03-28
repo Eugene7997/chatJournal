@@ -14,6 +14,7 @@ export default async function Navbar() {
                         <a href="/about" className="text-xl hover:underline">About</a>
                         {!session && <a href="/login" className="text-xl hover:underline">Login or Sign up</a>}
                         {session && <a href="/chat" className="text-xl hover:underline">Chat</a>}
+                        {session && <a href="/journals" className="text-xl hover:underline">Journals</a>}
                         {session && <a href="/account" className="text-xl hover:underline">Account</a>}
                     </nav>
                     {session?.user?.picture && <NavbarProfile src={session.user.picture} />}
