@@ -6,7 +6,7 @@ import ChatSideBar from "@/src/components/ChatSideBar";
 import JournalModal from "@/src/components/JournalModal";
 import type { ChatCompletionResponse, ChatMessage, Usage } from "@/lib/types/types";
 
-export default function Chat({ initialSessionId }: { initialSessionId?: string }) {
+export default function ChatClient({ initialSessionId }: { initialSessionId?: string }) {
     const router = useRouter();
     const [messages, setMessages] = useState<string[]>([]);
     const [sessions, setSessions] = useState<string[]>([]);

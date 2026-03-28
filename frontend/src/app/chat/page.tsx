@@ -1,7 +1,7 @@
 import { auth0 } from "@/lib/auth/auth0";
 import { redirect } from "next/navigation";
 import query from "@/lib/db/db";
-import Chat from "@/components/Chat";
+import ChatClient from "@/src/components/ChatClient";
 
 export default async function ChatPage({ searchParams }: { searchParams: Promise<{ session?: string }> }) {
     const session = await auth0.getSession();
@@ -25,7 +25,7 @@ export default async function ChatPage({ searchParams }: { searchParams: Promise
 
     return (
         <>
-            <Chat initialSessionId={initialSessionId} />
+            <ChatClient initialSessionId={initialSessionId} />
         </>
     );
 }
