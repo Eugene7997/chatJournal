@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import query from "@/lib/db/db";
 import Chat from "@/components/Chat";
 
-export default async function ChatPage() {
+export default async function ChatPage({ searchParams }: { searchParams: Promise<{ session?: string }> }) {
     const session = await auth0.getSession();
 
     if (!session) {
@@ -21,9 +21,11 @@ export default async function ChatPage() {
         console.error("Failed to sync user to DB:", error);
     }
 
+    const { session: initialSessionId } = await searchParams;
+
     return (
         <>
-            <Chat/>
+            <Chat initialSessionId={initialSessionId} />
         </>
     );
 }
