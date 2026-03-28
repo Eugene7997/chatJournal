@@ -5,7 +5,7 @@ import ChatSideBar from "@/src/components/ChatSideBar";
 import JournalModal from "@/src/components/JournalModal";
 import type { ChatCompletionResponse, ChatMessage, Usage } from "@/lib/types/types";
 
-export default function Chat() {
+export default function Chat({ initialSessionId }: { initialSessionId?: string }) {
     const [messages, setMessages] = useState<string[]>([]);
     const [sessions, setSessions] = useState<string[]>([]);
     const [currentChatSession, setCurrentChatSession] = useState<string>("");
@@ -310,6 +310,10 @@ export default function Chat() {
     }
 
     useEffect(() => {
+        if (initialSessionId) {
+            setCurrentChatSession(initialSessionId);
+            fetchSessionMessages(initialSessionId);
+        }
 
         fetchSessions();
 
