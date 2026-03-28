@@ -246,6 +246,31 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
         router.replace(`/chat?session=${index}`);
     }
 
+    async function handleDeleteSession(sessionId: string) {
+        try {
+            const response = await fetch("/api/chat/chat_session", {
+                method: "DELETE",
+                body: JSON.stringify({ sessionId }),
+            });
+
+            if (!response.ok) {
+                console.error(`Failed to delete session: ${response.statusText}`);
+                return;
+            }
+
+            setSessions(prev => prev.filter(s => s !== sessionId));
+
+            if (currentChatSession === sessionId) {
+                setCurrentChatSession("");
+                setMessages([]);
+                router.replace("/chat");
+            }
+        }
+        catch (error) {
+            console.error(`Error deleting session: ${error}`);
+        }
+    }
+
     async function generateJournal() {
         if (!currentChatSession) return;
         setGeneratingJournal(true);
@@ -356,7 +381,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
     return (
         <div className="absolute inset-0 flex">
             {journalContent && <JournalModal title={journalTitle} content={journalContent} onClose={() => setJournalContent("")} onSave={saveJournal} />}
-            <ChatSideBar sessions={sessions} onItemClick={handleSessionClick} loading={loadingSessionBar} />
+            <ChatSideBar sessions={sessions} onItemClick={handleSessionClick} onDeleteSession={handleDeleteSession} loading={loadingSessionBar} />
             <div className="flex-8 flex flex-col">
                 {currentChatSession && (
                     <div className="flex-none flex justify-end px-6 py-2 border-b border-slate-100">
