@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth0 } from "@/lib/auth/auth0";
 import type { ChatCompletionResponse } from "@/lib/types/types";
 import query from "@/lib/db/db";
+import { chatPrompt } from "@/lib/prompts/promptManager";
 
 const apiKey = process.env.OPENROUTER_API_KEY;
 
@@ -72,6 +73,7 @@ export async function POST(request: NextRequest) {
         model,
         stream,
         messages: [
+            { role: "system", content: chatPrompt },
             ...historyMessages,
             { role, content: message }
         ]
