@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { IoSearchOutline } from "react-icons/io5";
 import type { Journal } from "@/lib/types/types";
-import { FaRegTrashCan } from "react-icons/fa6";
+import { FaTrash, FaEdit } from "react-icons/fa";
 
 // ─── Date helpers ────────────────────────────────────────────────────────────
 
@@ -30,6 +30,22 @@ function rangeEdge(day: Date, a: Date | null, b: Date | null): "start" | "end" |
     if (isSameDay(day, lo)) return "start";
     if (isSameDay(day, hi)) return "end";
     return null;
+}
+
+// ─── Content helpers ──────────────────────────────────────────────────────────
+
+function extractDateLine(content: string): { dateLine: string; editableContent: string } {
+    const lines = content.split("\n");
+    const idx = lines.findIndex(l => l.startsWith("Date:"));
+    if (idx === -1) return { dateLine: "", editableContent: content };
+    const dateLine = lines[idx];
+    const remaining = [...lines.slice(0, idx), ...lines.slice(idx + 1)];
+    return { dateLine, editableContent: remaining.join("\n").replace(/^\n+|\n+$/g, "") };
+}
+
+function reconstructContent(editableContent: string, dateLine: string): string {
+    if (!dateLine) return editableContent;
+    return `${dateLine}\n\n${editableContent}`;
 }
 
 // ─── Calendar ─────────────────────────────────────────────────────────────────
@@ -217,6 +233,14 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
     const [rangeEnd, setRangeEnd] = useState<Date | null>(null);
     const [journalList, setJournalList] = useState<Journal[]>(journals);
     const [deleteConfirmPending, setDeleteConfirmPending] = useState(false);
+    const [editingJournalId, setEditingJournalId] = useState<string | null>(null);
+    const [editTitle, setEditTitle] = useState("");
+    const [editContent, setEditContent] = useState("");
+    const editTitleRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (editingJournalId) editTitleRef.current?.focus();
+    }, [editingJournalId]);
 
     async function handleDeleteJournal(journalId: string) {
         try {
@@ -249,6 +273,37 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
         } 
         catch (error) {
             console.error(`Error deleting all journals: ${error}`);
+        }
+    }
+
+    function handleStartEdit(journal: Journal) {
+        const { editableContent } = extractDateLine(journal.content);
+        setEditTitle(journal.title);
+        setEditContent(editableContent);
+        setEditingJournalId(journal.id);
+    }
+
+    function handleCancelEdit() {
+        setEditingJournalId(null);
+    }
+
+    async function handleSaveEdit(journal: Journal) {
+        const { dateLine } = extractDateLine(journal.content);
+        const fullContent = reconstructContent(editContent, dateLine);
+        try {
+            const response = await fetch("/api/journals", {
+                method: "PATCH",
+                body: JSON.stringify({ journalId: journal.id, title: editTitle, content: fullContent }),
+            });
+            if (!response.ok) {
+                console.error(`Failed to save journal: ${response.statusText}`);
+                return;
+            }
+            setJournalList(prev => prev.map(j => j.id === journal.id ? { ...j, title: editTitle, content: fullContent } : j));
+            setEditingJournalId(null);
+        } 
+        catch (error) {
+            console.error(`Error saving journal: ${error}`);
         }
     }
 
@@ -342,6 +397,7 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                                 month: "long",
                                 day: "numeric",
                             });
+                            const { dateLine } = extractDateLine(journal.content);
 
                             return (
                                 <details key={journal.id} className="border border-current/10 rounded-2xl overflow-hidden group">
@@ -362,28 +418,77 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                                             </Link>
                                         </div>
                                     </summary>
-                                    <div className="px-6 py-4 border-t border-current/10">
-                                        <div className="flex justify-end mb-2">
-                                            <button
-                                                onClick={() => handleDeleteJournal(journal.id)}
-                                                className="opacity-50 hover:opacity-100 transition-opacity"
-                                            >
-                                                <FaRegTrashCan />
-                                            </button>
+                                    {editingJournalId === journal.id ? (
+                                        <div className="px-6 py-4 border-t border-current/10 flex flex-col gap-3">
+                                            <input
+                                                ref={editTitleRef}
+                                                value={editTitle}
+                                                onChange={e => setEditTitle(e.target.value)}
+                                                onKeyDown={e => {
+                                                    if (e.key === "Enter") handleSaveEdit(journal);
+                                                    if (e.key === "Escape") handleCancelEdit();
+                                                }}
+                                                className="w-full px-3 py-2 rounded-lg border border-current/20 bg-transparent text-sm font-semibold focus:outline-none focus:border-current/40 transition-colors"
+                                                placeholder="Title"
+                                            />
+                                            {dateLine && (
+                                                <p className="text-xs font-mono opacity-40 px-1">
+                                                    {dateLine} <span className="opacity-60">(not editable)</span>
+                                                </p>
+                                            )}
+                                            <textarea
+                                                value={editContent}
+                                                onChange={e => setEditContent(e.target.value)}
+                                                onKeyDown={e => { if (e.key === "Escape") handleCancelEdit(); }}
+                                                rows={8}
+                                                className="w-full px-3 py-2 rounded-lg border border-current/20 bg-transparent font-mono text-sm focus:outline-none focus:border-current/40 transition-colors resize-y leading-relaxed"
+                                                placeholder="Journal content…"
+                                            />
+                                            <div className="flex justify-end gap-3">
+                                                <button
+                                                    onClick={handleCancelEdit}
+                                                    className="text-xs opacity-50 hover:opacity-100 transition-opacity"
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button
+                                                    onClick={() => handleSaveEdit(journal)}
+                                                    className="text-xs px-2.5 py-1 rounded-lg border border-current/20 opacity-70 hover:opacity-100 transition-opacity"
+                                                >
+                                                    Save
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className="font-mono text-sm whitespace-pre-wrap leading-relaxed opacity-80">
-                                        {lines.map((line, i) => {
-                                            if (line.startsWith("Date:")) {
-                                                return <p key={i} className="font-semibold opacity-100 mb-3">{line}</p>;
-                                            }
-                                            if (line.startsWith("Feelings:")) {
-                                                return <p key={i} className="mt-3 opacity-60 italic">{line}</p>;
-                                            }
-                                            if (line.trim() === "") return <br key={i} />;
-                                            return <p key={i}>{line}</p>;
-                                        })}
+                                    ) : (
+                                        <div className="px-6 py-4 border-t border-current/10">
+                                            <div className="flex justify-end gap-3 mb-2">
+                                                <button
+                                                    onClick={() => handleStartEdit(journal)}
+                                                    className="opacity-50 hover:opacity-100 transition-opacity"
+                                                >
+                                                    <FaEdit />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteJournal(journal.id)}
+                                                    className="opacity-50 hover:opacity-100 transition-opacity"
+                                                >
+                                                    <FaTrash />
+                                                </button>
+                                            </div>
+                                            <div className="font-mono text-sm whitespace-pre-wrap leading-relaxed opacity-80">
+                                                {lines.map((line, i) => {
+                                                    if (line.startsWith("Date:")) {
+                                                        return <p key={i} className="font-semibold opacity-100 mb-3">{line}</p>;
+                                                    }
+                                                    if (line.startsWith("Feelings:")) {
+                                                        return <p key={i} className="mt-3 opacity-60 italic">{line}</p>;
+                                                    }
+                                                    if (line.trim() === "") return <br key={i} />;
+                                                    return <p key={i}>{line}</p>;
+                                                })}
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
                                 </details>
                             );
                         })

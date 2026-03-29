@@ -54,6 +54,31 @@ export async function DELETE(request: NextRequest) {
     }
 }
 
+export async function PATCH(request: NextRequest) {
+    const session = await auth0.getSession();
+    if (!session) {
+        return new Response(JSON.stringify("Unauthorized"), { status: 401 });
+    }
+
+    const body = await request.json();
+    const { journalId, title, content } = body;
+
+    if (!journalId || title === undefined || !content) {
+        return new Response(JSON.stringify("Missing journalId, title, or content"), { status: 400 });
+    }
+
+    try {
+        await query(
+            `UPDATE journals SET title = $1, content = $2 WHERE id = $3 AND sub = $4`,
+            [title, content, journalId, session.user.sub]
+        );
+        return new Response(JSON.stringify({ message: "updated" }), { status: 200 });
+    }
+    catch (error) {
+        return new Response(JSON.stringify(`Database error: ${error}`), { status: 500 });
+    }
+}
+
 export async function GET() {
     const session = await auth0.getSession();
     if (!session) {
