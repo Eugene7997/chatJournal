@@ -68,19 +68,19 @@ export default function ChatSideBar({ sessions, onItemClick, onDeleteSession, on
     }
 
     return (
-        <div className="flex-2 bg-amber-200 flex flex-col">
-            <div>
-                <h1>Sessions</h1>
+        <div className="flex-2 border-r border-current/10 flex flex-col">
+            <div className="px-4 py-4 border-b border-current/10">
+                <h1 className="text-sm font-semibold opacity-60 uppercase tracking-wide">Sessions</h1>
             </div>
             <div className="flex-1 overflow-y-auto no-scrollbar">
                 {loading ?
-                    <p>Loading</p>
+                    <p className="px-4 py-3 text-sm opacity-40">Loading...</p>
                     :
-                    <ul className="flex flex-col gap-4 p-2">
+                    <ul className="flex flex-col p-2">
                         {sessions && sessions.map((session) => (
                             <li
                                 key={session.id}
-                                className="relative cursor-pointer flex items-center justify-between"
+                                className="relative cursor-pointer flex items-center justify-between rounded-xl px-3 py-2 hover:bg-foreground/5 transition-opacity"
                                 onClick={() => {
                                     if (renamingSessionId === session.id) return;
                                     setOpenMenuSessionId(null);
@@ -90,7 +90,7 @@ export default function ChatSideBar({ sessions, onItemClick, onDeleteSession, on
                                 {renamingSessionId === session.id ? (
                                     <input
                                         ref={renameInputRef}
-                                        className="flex-1 text-sm px-1 rounded border border-gray-400 bg-white"
+                                        className="flex-1 text-sm px-1 rounded border border-current/20 bg-transparent"
                                         value={renameValue}
                                         onChange={(e) => setRenameValue(e.target.value)}
                                         onBlur={() => commitRename(session.id)}
@@ -98,26 +98,26 @@ export default function ChatSideBar({ sessions, onItemClick, onDeleteSession, on
                                         onClick={(e) => e.stopPropagation()}
                                     />
                                 ) : (
-                                    <span className="truncate">{session.name ?? session.id}</span>
+                                    <span className="truncate text-sm">{session.name ?? session.id}</span>
                                 )}
                                 <div className="relative">
                                     <button
-                                        className="px-1 hover:opacity-60"
+                                        className="px-1 hover:opacity-60 transition-opacity"
                                         onClick={(e) => toggleMenu(e, session.id)}
                                         aria-label="Session options"
                                     >
                                         &#8943;
                                     </button>
                                     {openMenuSessionId === session.id && (
-                                        <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded shadow-md z-10 min-w-25">
+                                        <div className="absolute right-0 top-full mt-1 bg-background border border-current/10 rounded-xl shadow-md z-10 min-w-25">
                                             <button
-                                                className="w-full text-left px-3 py-2 text-sm hover:bg-gray-100"
+                                                className="w-full text-left px-3 py-2 text-sm hover:bg-foreground/5 rounded-t-xl"
                                                 onClick={(e) => handleRenameClick(e, session)}
                                             >
                                                 Rename
                                             </button>
                                             <button
-                                                className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-100"
+                                                className="w-full text-left px-3 py-2 text-sm opacity-60 hover:bg-foreground/5 rounded-b-xl"
                                                 onClick={(e) => handleDelete(e, session.id)}
                                             >
                                                 Delete
