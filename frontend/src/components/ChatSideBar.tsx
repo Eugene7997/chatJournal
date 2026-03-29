@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { FaPlus } from "react-icons/fa";
 import type { ChatSession } from "@/lib/types/types";
 
-export default function ChatSideBar({ sessions, onItemClick, onDeleteSession, onRenameSession, loading }: {
+export default function ChatSideBar({ sessions, onItemClick, onNewSession, onDeleteSession, onRenameSession, loading }: {
     sessions: ChatSession[];
     onItemClick: (id: string) => void;
+    onNewSession: () => void;
     onDeleteSession: (sessionId: string) => void;
     onRenameSession: (sessionId: string, name: string) => void;
     loading: boolean;
@@ -69,8 +71,16 @@ export default function ChatSideBar({ sessions, onItemClick, onDeleteSession, on
 
     return (
         <div className="flex-2 border-r border-current/10 flex flex-col">
-            <div className="px-4 py-4 border-b border-current/10">
+            <div className="px-4 py-4 border-b border-current/10 flex items-center justify-between">
                 <h1 className="text-sm font-semibold opacity-60 uppercase tracking-wide">Sessions</h1>
+                <button
+                    className="text-sm px-2 py-1 rounded-lg hover:bg-foreground/5 transition-opacity opacity-60 hover:opacity-100"
+                    onClick={onNewSession}
+                    aria-label="New conversation"
+                    title="New conversation"
+                >
+                    <FaPlus />
+                </button>
             </div>
             <div className="flex-1 overflow-y-auto no-scrollbar">
                 {loading ?

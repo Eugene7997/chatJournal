@@ -250,6 +250,13 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
         setLoadingMessages(false);
     }
 
+    function handleNewSession() {
+        setCurrentChatSession("");
+        setMessages([]);
+        setChatBotResponse("");
+        router.replace("/chat");
+    }
+
     function handleSessionClick(index: string) {
         setCurrentChatSession(index);
         fetchSessionMessages(index);
@@ -411,7 +418,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
     return (
         <div className="absolute inset-0 flex">
             {journalContent && <JournalModal title={journalTitle} content={journalContent} onClose={() => setJournalContent("")} onSave={saveJournal} />}
-            <ChatSideBar sessions={sessions} onItemClick={handleSessionClick} onDeleteSession={handleDeleteSession} onRenameSession={handleRenameSession} loading={loadingSessionBar} />
+            <ChatSideBar sessions={sessions} onItemClick={handleSessionClick} onNewSession={handleNewSession} onDeleteSession={handleDeleteSession} onRenameSession={handleRenameSession} loading={loadingSessionBar} />
             <div className="flex-8 flex flex-col">
                 {currentChatSession && (
                     <div className="flex-none flex justify-end px-6 py-2 border-b border-slate-100">
