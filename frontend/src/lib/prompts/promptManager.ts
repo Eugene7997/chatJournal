@@ -1,3 +1,5 @@
+// TODO: add more guardrails and do adversial prompt testing
+
 export const chatPrompt = `You are a warm, caring journaling companion. Your role is to help the user reflect on and capture their day through natural conversation.
 
 Your approach:

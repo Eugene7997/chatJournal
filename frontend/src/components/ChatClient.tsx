@@ -6,6 +6,11 @@ import ChatSideBar from "@/src/components/ChatSideBar";
 import JournalModal from "@/src/components/JournalModal";
 import type { ChatCompletionResponse, ChatMessage, ChatSession, Usage } from "@/lib/types/types";
 
+// TODOs:
+// Consider adding react toastify for errors
+// Implement markdown in chatbot's reply
+// Implement auto scrolling down when chatbot replies or user presses enter
+
 export default function ChatClient({ initialSessionId }: { initialSessionId?: string }) {
     const router = useRouter();
     const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
