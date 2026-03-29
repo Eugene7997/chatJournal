@@ -8,7 +8,7 @@ import type { ChatCompletionResponse, ChatMessage, ChatSession, Usage } from "@/
 
 export default function ChatClient({ initialSessionId }: { initialSessionId?: string }) {
     const router = useRouter();
-    const [messages, setMessages] = useState<string[]>([]);
+    const [messages, setMessages] = useState<{ role: "user" | "assistant"; content: string }[]>([]);
     const [sessions, setSessions] = useState<ChatSession[]>([]);
     const [currentChatSession, setCurrentChatSession] = useState<string>("");
     const [userMsg, setUserMsg] = useState<string>("");
@@ -88,6 +88,9 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
 
         chatSessionId = currentChatSession || chatSessionId;
 
+        setMessages(prev => [...prev, { role: "user", content: userMsg }]);
+        setChatBotResponse("");
+
         const response = await fetch("/api/chat/message", {
             method: "POST",
             body: JSON.stringify({
@@ -106,8 +109,9 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
         if (!stream) {
             let data = await response.json();
             data = data.data as ChatCompletionResponse;
-            setChatBotResponse(data.choices[0].message.content);
-            // Please note that chatbot response messages are saved by the route 
+            const assistantContent = data.choices[0].message.content;
+            setMessages(prev => [...prev, { role: "assistant", content: assistantContent }]);
+            // Please note that chatbot response messages are saved by the route
             // when not streaming. Do not use saveMessages()
             return;
         }
@@ -153,11 +157,16 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                 if (line.startsWith("data: ")) {
                     const data = line.slice(6);
                     if (data === "[DONE]") {
+                        const assistantContent = finalResponse.choices[0].message.content;
+                        tokenQueue.current = [];
+                        setChatBotResponse("");
+                        setMessages(prev => [...prev, { role: "assistant", content: assistantContent }]);
+
                         if (chatSessionId) {
                             await saveMessage(
                                 chatSessionId,
                                 "assistant",
-                                finalResponse.choices[0].message.content,
+                                assistantContent,
                                 finalResponse.model,
                                 {
                                     openrouterId: finalResponse.id,
@@ -169,7 +178,6 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                                 }
                             );
                         }
-                        console.log(`finalResponse: ${JSON.stringify(finalResponse)}`);
                         return;
                     }
 
@@ -227,11 +235,13 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                 throw new Error("Invalid response from server");
             }
 
-            const retrieveContents = data.messages.map((row: ChatMessage) =>{
-                return row.content;
-            });
+                const retrieved = data.messages.map((row: ChatMessage) => ({
+                role: row.role as "user" | "assistant",
+                content: row.content,
+            }));
 
-            setMessages([...retrieveContents]);
+            setMessages([...retrieved]);
+            setChatBotResponse("");
         }
         catch (error) {
             console.error(`${error}`);
@@ -415,13 +425,29 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                     </div>
                 )}
                 {error ? (
-                    <div className="flex-1 flex justify-center items-center">
+                    <div className="flex-1 flex justify-center items-center text-red-500">
                         {error}
                     </div>
                 ) : (
-                    <div className="flex-1 flex justify-center items-center">
-                        {messages}
-                        {chatBotResponse}
+                    <div className="flex-1 overflow-y-auto flex flex-col gap-3 px-6 py-4">
+                        {messages.map((msg, i) => (
+                            <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                                <div className={`max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
+                                    msg.role === "user"
+                                        ? "bg-foreground text-background"
+                                        : "bg-foreground/5 border border-current/10"
+                                }`}>
+                                    {msg.content}
+                                </div>
+                            </div>
+                        ))}
+                        {chatBotResponse && (
+                            <div className="flex justify-start">
+                                <div className="max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap bg-foreground/5 border border-current/10">
+                                    {chatBotResponse}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
                 <footer className="flex-none backdrop-blur-lg border-t border-slate-200">
