@@ -73,6 +73,8 @@ export async function POST(request: NextRequest) {
             }),
         });
 
+        // TODO: implement chat_completion_usage for generation of journals too.
+
         if (!response.ok) {
             return new Response(JSON.stringify(`LLM error: ${response.statusText}`), { status: 500 });
         }
