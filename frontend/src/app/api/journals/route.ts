@@ -27,6 +27,33 @@ export async function POST(request: NextRequest) {
     }
 }
 
+export async function DELETE(request: NextRequest) {
+    const session = await auth0.getSession();
+    if (!session) {
+        return new Response(JSON.stringify("Unauthorized"), { status: 401 });
+    }
+
+    const body = await request.json();
+    const { journalId, deleteAll } = body;
+
+    if (!journalId && !deleteAll) {
+        return new Response(JSON.stringify("Missing journalId or deleteAll"), { status: 400 });
+    }
+
+    try {
+        if (deleteAll) {
+            await query(`DELETE FROM journals WHERE sub = $1`, [session.user.sub]);
+        } 
+        else {
+            await query(`DELETE FROM journals WHERE id = $1 AND sub = $2`, [journalId, session.user.sub]);
+        }
+        return new Response(JSON.stringify({ message: "deleted" }), { status: 200 });
+    }
+    catch (error) {
+        return new Response(JSON.stringify(`Database error: ${error}`), { status: 500 });
+    }
+}
+
 export async function GET() {
     const session = await auth0.getSession();
     if (!session) {

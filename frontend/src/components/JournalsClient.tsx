@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { IoSearchOutline } from "react-icons/io5";
 import type { Journal } from "@/lib/types/types";
+import { FaRegTrashCan } from "react-icons/fa6";
 
 // ─── Date helpers ────────────────────────────────────────────────────────────
 
@@ -214,8 +215,44 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
     const [search, setSearch] = useState("");
     const [rangeStart, setRangeStart] = useState<Date | null>(null);
     const [rangeEnd, setRangeEnd] = useState<Date | null>(null);
+    const [journalList, setJournalList] = useState<Journal[]>(journals);
+    const [deleteConfirmPending, setDeleteConfirmPending] = useState(false);
 
-    const filtered = journals.filter(j => {
+    async function handleDeleteJournal(journalId: string) {
+        try {
+            const response = await fetch("/api/journals", {
+                method: "DELETE",
+                body: JSON.stringify({ journalId }),
+            });
+            if (!response.ok) {
+                console.error(`Failed to delete journal: ${response.statusText}`);
+                return;
+            }
+            setJournalList(prev => prev.filter(j => j.id !== journalId));
+        } catch (error) {
+            console.error(`Error deleting journal: ${error}`);
+        }
+    }
+
+    async function handleDeleteAllJournals() {
+        try {
+            const response = await fetch("/api/journals", {
+                method: "DELETE",
+                body: JSON.stringify({ deleteAll: true }),
+            });
+            if (!response.ok) {
+                console.error(`Failed to delete all journals: ${response.statusText}`);
+                return;
+            }
+            setJournalList([]);
+            setDeleteConfirmPending(false);
+        } 
+        catch (error) {
+            console.error(`Error deleting all journals: ${error}`);
+        }
+    }
+
+    const filtered = journalList.filter(j => {
         if (search) {
             if (!j.content.toLowerCase().includes(search.toLowerCase())) return false;
         }
@@ -240,6 +277,35 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                 />
             </div>
 
+            {journalList.length > 0 && (
+                <div className="flex justify-end items-center gap-3 mb-4">
+                    {deleteConfirmPending ? (
+                        <>
+                            <span className="text-xs opacity-60">This will permanently delete all your journals.</span>
+                            <button
+                                onClick={handleDeleteAllJournals}
+                                className="text-xs px-2.5 py-1 rounded-lg border border-red-500/40 text-red-500 opacity-70 hover:opacity-100 transition-opacity"
+                            >
+                                Confirm delete all
+                            </button>
+                            <button
+                                onClick={() => setDeleteConfirmPending(false)}
+                                className="text-xs opacity-50 hover:opacity-100 transition-opacity"
+                            >
+                                Cancel
+                            </button>
+                        </>
+                    ) : (
+                        <button
+                            onClick={() => setDeleteConfirmPending(true)}
+                            className="text-xs opacity-50 hover:opacity-100 transition-opacity"
+                        >
+                            Delete all journals
+                        </button>
+                    )}
+                </div>
+            )}
+
             <div className="flex gap-8 items-start">
                 {/* Calendar sidebar */}
                 <div className="w-64 flex-none sticky top-6">
@@ -247,7 +313,7 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                         Filter by date
                     </p>
                     <Calendar
-                        journals={journals}
+                        journals={journalList}
                         rangeStart={rangeStart}
                         rangeEnd={rangeEnd}
                         onRangeChange={(s, e) => { setRangeStart(s); setRangeEnd(e); }}
@@ -296,7 +362,16 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                                             </Link>
                                         </div>
                                     </summary>
-                                    <div className="px-6 py-4 border-t border-current/10 font-mono text-sm whitespace-pre-wrap leading-relaxed opacity-80">
+                                    <div className="px-6 py-4 border-t border-current/10">
+                                        <div className="flex justify-end mb-2">
+                                            <button
+                                                onClick={() => handleDeleteJournal(journal.id)}
+                                                className="opacity-50 hover:opacity-100 transition-opacity"
+                                            >
+                                                <FaRegTrashCan />
+                                            </button>
+                                        </div>
+                                        <div className="font-mono text-sm whitespace-pre-wrap leading-relaxed opacity-80">
                                         {lines.map((line, i) => {
                                             if (line.startsWith("Date:")) {
                                                 return <p key={i} className="font-semibold opacity-100 mb-3">{line}</p>;
@@ -307,6 +382,7 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                                             if (line.trim() === "") return <br key={i} />;
                                             return <p key={i}>{line}</p>;
                                         })}
+                                        </div>
                                     </div>
                                 </details>
                             );
