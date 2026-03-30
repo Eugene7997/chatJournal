@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import ChatSideBar from "@/src/components/ChatSideBar";
 import JournalModal from "@/src/components/JournalModal";
@@ -24,7 +25,6 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
     const flushTimer = useRef<NodeJS.Timeout | null>(null);
     const formRef = useRef<HTMLFormElement>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
-    const [error, setError] = useState<string>("");
     const [disableChatbox, setDisableChatbox] = useState<boolean>(false);
     const [sendingUserMessage, setSendingUserMessage] = useState<boolean>(false);
     const [loadingSessionBar, setLoadingSessionBar] = useState<boolean>(false);
@@ -68,14 +68,16 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
 
                 if (!response.ok) {
                     setDisableChatbox(true);
-                    setError("Unable to create a chat session. Please try again later.");
+                    toast.error("Unable to create a chat session. Please try again later.");
+                    return;
                 }
 
                 const data = await response.json();
 
                 if (!data) {
                     setDisableChatbox(true);
-                    setError("Unable to create a chat session. Please try again later.");
+                    toast.error("Unable to create a chat session. Please try again later.");
+                    return;
                 }
 
                 chatSessionId = data.chat_session_id;
@@ -83,12 +85,9 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                 setSessions([{ id: chatSessionId, name: null }, ...sessions]);
             }
             catch (error) {
-                if (error instanceof Error) {
-                    setError(error.message);
-                }
-                else {
-                    setError(String(error));
-                }
+                setDisableChatbox(true);
+                toast.error(error instanceof Error ? error.message : String(error));
+                return;
             }
         }
 
@@ -250,6 +249,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
             setChatBotResponse("");
         }
         catch (error) {
+            toast.error("Failed to load messages. Please try again.");
             console.error(`${error}`);
         }
 
@@ -277,7 +277,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
             });
 
             if (!response.ok) {
-                console.error(`Failed to delete session: ${response.statusText}`);
+                toast.error("Failed to delete session. Please try again.");
                 return;
             }
 
@@ -290,6 +290,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
             }
         }
         catch (error) {
+            toast.error("Failed to delete session. Please try again.");
             console.error(`Error deleting session: ${error}`);
         }
     }
@@ -303,13 +304,14 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
             });
 
             if (!response.ok) {
-                console.error(`Failed to rename session: ${response.statusText}`);
+                toast.error("Failed to rename session. Please try again.");
                 return;
             }
 
             setSessions(prev => prev.map(s => s.id === sessionId ? { ...s, name } : s));
         }
         catch (error) {
+            toast.error("Failed to rename session. Please try again.");
             console.error(`Error renaming session: ${error}`);
         }
     }
@@ -324,6 +326,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
             });
 
             if (!response.ok) {
+                toast.error("Failed to generate journal. Please try again.");
                 console.error(`Journal generation failed: ${response.statusText}`);
                 return;
             }
@@ -335,6 +338,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
             setJournalSaved(false);
         }
         catch (error) {
+            toast.error("Failed to generate journal. Please try again.");
             console.error(`Journal generation error: ${error}`);
         }
         setGeneratingJournal(false);
@@ -351,6 +355,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
             setJournalSaved(true);
         }
         catch (error) {
+            toast.error("Failed to save journal. Please try again.");
             console.error(`Failed to save journal: ${error}`);
         }
     }
@@ -376,7 +381,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
             setSessions(data.sessions);
         }
         catch (error) {
-            setError(`Unable to load session, ${currentChatSession}.\n${error}`);
+            toast.error("Unable to load sessions. Please refresh and try again.");
             console.error(`error: ${error}`);
         }
         setLoadingSessionBar(false);
@@ -438,11 +443,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                         </button>
                     </div>
                 )}
-                {error ? (
-                    <div className="flex-1 flex justify-center items-center text-red-500">
-                        {error}
-                    </div>
-                ) : loadingMessages ? (
+                {loadingMessages ? (
                     <div className="flex-1 flex justify-center items-center opacity-40">
                         <AiOutlineLoading3Quarters className="animate-spin text-2xl" />
                     </div>
