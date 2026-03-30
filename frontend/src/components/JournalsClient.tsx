@@ -8,21 +8,21 @@ import { FaTrash, FaEdit } from "react-icons/fa";
 
 // ─── Date helpers ────────────────────────────────────────────────────────────
 
-function dayTs(date: Date): number {
+export function dayTs(date: Date): number {
     return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 }
 
-function isSameDay(a: Date, b: Date): boolean {
+export function isSameDay(a: Date, b: Date): boolean {
     return dayTs(a) === dayTs(b);
 }
 
-function isInRange(day: Date, a: Date | null, b: Date | null): boolean {
+export function isInRange(day: Date, a: Date | null, b: Date | null): boolean {
     if (!a || !b) return false;
     const t = dayTs(day);
     return t >= Math.min(dayTs(a), dayTs(b)) && t <= Math.max(dayTs(a), dayTs(b));
 }
 
-function rangeEdge(day: Date, a: Date | null, b: Date | null): "start" | "end" | "single" | null {
+export function rangeEdge(day: Date, a: Date | null, b: Date | null): "start" | "end" | "single" | null {
     if (!a || !b) return null;
     const lo = dayTs(a) <= dayTs(b) ? a : b;
     const hi = dayTs(a) <= dayTs(b) ? b : a;
@@ -34,7 +34,7 @@ function rangeEdge(day: Date, a: Date | null, b: Date | null): "start" | "end" |
 
 // ─── Content helpers ──────────────────────────────────────────────────────────
 
-function extractDateLine(content: string): { dateLine: string; editableContent: string } {
+export function extractDateLine(content: string): { dateLine: string; editableContent: string } {
     const lines = content.split("\n");
     const idx = lines.findIndex(l => l.startsWith("Date:"));
     if (idx === -1) return { dateLine: "", editableContent: content };
@@ -43,7 +43,7 @@ function extractDateLine(content: string): { dateLine: string; editableContent: 
     return { dateLine, editableContent: remaining.join("\n").replace(/^\n+|\n+$/g, "") };
 }
 
-function reconstructContent(editableContent: string, dateLine: string): string {
+export function reconstructContent(editableContent: string, dateLine: string): string {
     if (!dateLine) return editableContent;
     return `${dateLine}\n\n${editableContent}`;
 }
