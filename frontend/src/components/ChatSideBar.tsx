@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { FaPlus } from "react-icons/fa";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import type { ChatSession } from "@/lib/types/types";
 
 export default function ChatSideBar({ sessions, onItemClick, onNewSession, onDeleteSession, onRenameSession, loading }: {
@@ -84,7 +85,9 @@ export default function ChatSideBar({ sessions, onItemClick, onNewSession, onDel
             </div>
             <div className="flex-1 overflow-y-auto no-scrollbar">
                 {loading ?
-                    <p className="px-4 py-3 text-sm opacity-40">Loading...</p>
+                    <div className="flex justify-center items-center py-8 opacity-40">
+                        <AiOutlineLoading3Quarters className="animate-spin text-xl" />
+                    </div>
                     :
                     <ul className="flex flex-col p-2">
                         {sessions && sessions.map((session) => (

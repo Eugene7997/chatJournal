@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { IoMdClose } from "react-icons/io";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 export default function JournalModal({ title, content, onClose, onSave }: { title: string; content: string; onClose: () => void; onSave: () => Promise<void> }) {
     const [saving, setSaving] = useState(false);
@@ -55,8 +56,9 @@ export default function JournalModal({ title, content, onClose, onSave }: { titl
                     <button
                         onClick={handleSave}
                         disabled={saving || saved}
-                        className="px-4 py-2 rounded-xl border border-current font-semibold text-sm hover:opacity-70 disabled:opacity-30 transition-opacity"
+                        className="flex items-center gap-2 px-4 py-2 rounded-xl border border-current font-semibold text-sm hover:opacity-70 disabled:opacity-30 transition-opacity"
                     >
+                        {saving && <AiOutlineLoading3Quarters className="animate-spin" />}
                         {saving ? "Saving..." : saved ? "Saved!" : "Save Journal"}
                     </button>
                     <button

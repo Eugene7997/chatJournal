@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import ChatSideBar from "@/src/components/ChatSideBar";
 import JournalModal from "@/src/components/JournalModal";
 import type { ChatCompletionResponse, ChatMessage, ChatSession, Usage } from "@/lib/types/types";
@@ -430,8 +431,9 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                         <button
                             onClick={generateJournal}
                             disabled={generatingJournal}
-                            className="text-sm px-3 py-1.5 rounded-xl border border-current font-semibold hover:opacity-60 disabled:opacity-30 transition-opacity"
+                            className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-xl border border-current font-semibold hover:opacity-60 disabled:opacity-30 transition-opacity"
                         >
+                            {generatingJournal && <AiOutlineLoading3Quarters className="animate-spin" />}
                             {generatingJournal ? "Generating..." : "Generate Journal"}
                         </button>
                     </div>
@@ -439,6 +441,10 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                 {error ? (
                     <div className="flex-1 flex justify-center items-center text-red-500">
                         {error}
+                    </div>
+                ) : loadingMessages ? (
+                    <div className="flex-1 flex justify-center items-center opacity-40">
+                        <AiOutlineLoading3Quarters className="animate-spin text-2xl" />
                     </div>
                 ) : (
                     <div className="flex-1 overflow-y-auto flex flex-col gap-3 px-6 py-4">
