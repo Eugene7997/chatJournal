@@ -61,6 +61,11 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
     async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         e.preventDefault()
 
+        const messageToSend = userMsg.trim();
+        if (!messageToSend) return;
+
+        setUserMsg("");
+
         let chatSessionId;
 
         if (messages.length <= 0 && currentChatSession.length <= 0) {
@@ -70,6 +75,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                 });
 
                 if (!response.ok) {
+                    setUserMsg(messageToSend);
                     setDisableChatbox(true);
                     toast.error("Unable to create a chat session. Please try again later.");
                     return;
@@ -88,6 +94,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                 setSessions([{ id: chatSessionId, name: null }, ...sessions]);
             }
             catch (error) {
+                setUserMsg(messageToSend);
                 setDisableChatbox(true);
                 toast.error(error instanceof Error ? error.message : String(error));
                 return;
@@ -96,14 +103,14 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
 
         chatSessionId = currentChatSession || chatSessionId;
 
-        setMessages(prev => [...prev, { role: "user", content: userMsg }]);
+        setMessages(prev => [...prev, { role: "user", content: messageToSend }]);
         setChatBotResponse("");
 
         const response = await fetch("/api/chat/message", {
             method: "POST",
             body: JSON.stringify({
                 "sessionId": chatSessionId,
-                "message": userMsg,
+                "message": messageToSend,
                 "role": "user",
                 "stream": stream
             }),
@@ -111,8 +118,6 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                 "Content-Type": "application/json"
             }
         });
-
-        setUserMsg("");
 
         if (!stream) {
             let data = await response.json();
@@ -125,7 +130,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
         }
 
         if (chatSessionId) {
-            await saveMessage(chatSessionId, "user", userMsg, "")
+            await saveMessage(chatSessionId, "user", messageToSend, "")
         }
         
         // TODO: Implement logic for stream cancellation
@@ -218,6 +223,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                         }
                     } 
                     catch (error) {
+                        setUserMsg(messageToSend);
                         console.error(error);
                     }
                 }
