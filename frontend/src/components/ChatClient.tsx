@@ -10,7 +10,6 @@ import JournalModal from "@/src/components/JournalModal";
 import type { ChatCompletionResponse, ChatMessage, ChatSession, Usage } from "@/lib/types/types";
 
 // TODOs:
-// Consider adding react toastify for errors
 // Implement markdown in chatbot's reply
 // Implement auto scrolling down when chatbot replies or user presses enter
 
