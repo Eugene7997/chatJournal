@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { MdMic, MdMicOff } from "react-icons/md";
 import ChatSideBar from "@/src/components/ChatSideBar";
 import JournalModal from "@/src/components/JournalModal";
 import type { ChatCompletionResponse, ChatMessage, ChatSession, Usage } from "@/lib/types/types";
@@ -33,6 +34,8 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
     const [journalTitle, setJournalTitle] = useState<string>("");
     const [journalSaved, setJournalSaved] = useState<boolean>(false);
     const [generatingJournal, setGeneratingJournal] = useState<boolean>(false);
+    const [listening, setListening] = useState<boolean>(false);
+    const recognitionRef = useRef<SpeechRecognition | null>(null);
 
     async function saveMessage(
         sessionId: string,
@@ -360,6 +363,47 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
         }
     }
 
+    function toggleMic() {
+        const SpeechRecognitionAPI =
+            window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognitionAPI) {
+            toast.error("Speech recognition is not supported in this browser.");
+            return;
+        }
+
+        if (listening) {
+            recognitionRef.current?.stop();
+            return;
+        }
+
+        const recognition = new SpeechRecognitionAPI();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.lang = "en-US";
+
+        recognition.onresult = (e: SpeechRecognitionEvent) => {
+            const transcript = Array.from(e.results)
+                .slice(e.resultIndex)
+                .map((r) => r[0].transcript)
+                .join("");
+            setUserMsg(prev => prev + transcript);
+        };
+
+        recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
+            if (e.error !== "aborted") {
+                toast.error(`Speech recognition error: ${e.error}`);
+            }
+            setListening(false);
+        };
+
+        recognition.onend = () => setListening(false);
+
+        recognitionRef.current = recognition;
+        recognition.start();
+        setListening(true);
+    }
+
     async function fetchSessions() {
         setLoadingSessionBar(true);
 
@@ -483,12 +527,27 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                             onChange={(e) => setUserMsg(e.target.value)}
                             disabled={disableChatbox}
                         />
-                        <button
-                            className="border-gray-300 rounded-xl"
-                            disabled={disableChatbox}
-                        >
-                            Send
-                        </button>
+                        <div className="flex flex-row gap-2 items-stretch">
+                            <button
+                                type="button"
+                                onClick={toggleMic}
+                                disabled={disableChatbox}
+                                className={`p-4 flex items-center justify-center rounded-xl border transition-colors disabled:opacity-30 ${
+                                    listening
+                                        ? "bg-red-500 border-red-500 text-white animate-pulse"
+                                        : "border-gray-300 hover:bg-gray-100"
+                                }`}
+                                title={listening ? "Stop recording" : "Start recording"}
+                            >
+                                {listening ? <MdMicOff size={20} /> : <MdMic size={20} />}
+                            </button>
+                            <button
+                                className="px-6 border border-gray-300 rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-30 font-medium"
+                                disabled={disableChatbox}
+                            >
+                                Send
+                            </button>
+                        </div>
                     </form>
                 </footer>
             </div>
