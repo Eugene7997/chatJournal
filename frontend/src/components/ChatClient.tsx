@@ -11,7 +11,6 @@ import type { ChatCompletionResponse, ChatMessage, ChatSession, Usage } from "@/
 
 // TODOs:
 // Implement markdown in chatbot's reply
-// Implement auto scrolling down when chatbot replies or user presses enter
 
 export default function ChatClient({ initialSessionId }: { initialSessionId?: string }) {
     const router = useRouter();
@@ -35,6 +34,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
     const [generatingJournal, setGeneratingJournal] = useState<boolean>(false);
     const [listening, setListening] = useState<boolean>(false);
     const recognitionRef = useRef<SpeechRecognition | null>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
     const [conversationalModeActive, setConversationalModeActive] = useState<boolean>(false);
     const [convStatus, setConvStatus] = useState<"listening" | "thinking" | "speaking">("listening");
     const conversationalModeRef = useRef<boolean>(false);
@@ -571,6 +571,10 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
         }
     }, []);
 
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages, chatBotResponse]);
+
     return (
         <div className="absolute inset-0 flex">
             {journalContent && <JournalModal title={journalTitle} content={journalContent} onClose={() => setJournalContent("")} onSave={saveJournal} />}
@@ -612,6 +616,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                                 </div>
                             </div>
                         )}
+                        <div ref={messagesEndRef} />
                     </div>
                 )}
                 <footer className="flex-none backdrop-blur-lg border-t border-slate-200">
