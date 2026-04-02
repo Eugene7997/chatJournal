@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { MdMic, MdMicOff } from "react-icons/md";
+import { MdMic, MdMicOff, MdRecordVoiceOver } from "react-icons/md";
 import ChatSideBar from "@/src/components/ChatSideBar";
 import JournalModal from "@/src/components/JournalModal";
 import type { ChatCompletionResponse, ChatMessage, ChatSession, Usage } from "@/lib/types/types";
@@ -35,6 +35,11 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
     const [generatingJournal, setGeneratingJournal] = useState<boolean>(false);
     const [listening, setListening] = useState<boolean>(false);
     const recognitionRef = useRef<SpeechRecognition | null>(null);
+    const [conversationalModeActive, setConversationalModeActive] = useState<boolean>(false);
+    const [convStatus, setConvStatus] = useState<"listening" | "thinking" | "speaking">("listening");
+    const conversationalModeRef = useRef<boolean>(false);
+    const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
+    const sendingRef = useRef<boolean>(false);
 
     async function saveMessage(
         sessionId: string,
@@ -189,6 +194,15 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                                     cost: (finalResponse.usage as Usage)?.cost,
                                 }
                             );
+                        }
+
+                        if (conversationalModeRef.current) {
+                            sendingRef.current = false;
+                            setConvStatus("speaking");
+                            await speakText(assistantContent);
+                            if (conversationalModeRef.current) {
+                                startConversationalListening();
+                            }
                         }
                         return;
                     }
@@ -409,6 +423,86 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
         setListening(true);
     }
 
+    function speakText(text: string): Promise<void> {
+        return new Promise((resolve) => {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = "en-US";
+            utterance.onend = () => resolve();
+            utterance.onerror = () => resolve();
+            synthRef.current = utterance;
+            window.speechSynthesis.speak(utterance);
+        });
+    }
+
+    function startConversationalListening() {
+        if (!conversationalModeRef.current) return;
+
+        const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognitionAPI) {
+            toast.error("Speech recognition is not supported in this browser.");
+            stopConversationalMode();
+            return;
+        }
+
+        setConvStatus("listening");
+
+        const recognition = new SpeechRecognitionAPI();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = "en-US";
+
+        let hasResult = false;
+
+        recognition.onresult = (e: SpeechRecognitionEvent) => {
+            const transcript = Array.from(e.results).map((r) => r[0].transcript).join("").trim();
+            if (transcript) { hasResult = true; setUserMsg(transcript); }
+        };
+
+        recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
+            if (e.error !== "aborted") console.warn(`Conv recognition error: ${e.error}`);
+        };
+
+        recognition.onend = () => {
+            if (!conversationalModeRef.current) return;
+            if (hasResult) {
+                setConvStatus("thinking");
+                sendingRef.current = true;
+                formRef.current?.requestSubmit();
+            }
+            else {
+                startConversationalListening();
+            }
+        };
+
+        recognitionRef.current = recognition;
+        recognition.start();
+    }
+
+    function startConversationalMode() {
+        const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognitionAPI) {
+            toast.error("Speech recognition is not supported in this browser.");
+            return;
+        }
+        if (listening) { recognitionRef.current?.stop(); setListening(false); }
+        conversationalModeRef.current = true;
+        setConversationalModeActive(true);
+        startConversationalListening();
+    }
+
+    function stopConversationalMode() {
+        conversationalModeRef.current = false;
+        sendingRef.current = false;
+        window.speechSynthesis.cancel();
+        synthRef.current = null;
+        recognitionRef.current?.abort();
+        recognitionRef.current = null;
+        setConversationalModeActive(false);
+        setConvStatus("listening");
+        setUserMsg("");
+    }
+
     async function fetchSessions() {
         setLoadingSessionBar(true);
 
@@ -472,6 +566,8 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
             if (flushTimer.current) {
                 clearInterval(flushTimer.current);
             }
+            window.speechSynthesis?.cancel();
+            recognitionRef.current?.abort();
         }
     }, []);
 
@@ -524,19 +620,21 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                         className="w-full flex gap-8 px-8 py-4"
                         onSubmit={handleSubmit}
                     >
-                        <textarea
-                            ref={textareaRef}
-                            className="flex-1 border-2 border-gray-300 rounded-xl p-4"
-                            placeholder="Start typing!"
-                            value={userMsg}
-                            onChange={(e) => setUserMsg(e.target.value)}
-                            disabled={disableChatbox}
-                        />
+                        {!conversationalModeActive && (
+                            <textarea
+                                ref={textareaRef}
+                                className="flex-1 border-2 border-gray-300 rounded-xl p-4"
+                                placeholder="Start typing!"
+                                value={userMsg}
+                                onChange={(e) => setUserMsg(e.target.value)}
+                                disabled={disableChatbox}
+                            />
+                        )}
                         <div className="flex flex-row gap-2 items-stretch">
                             <button
                                 type="button"
                                 onClick={toggleMic}
-                                disabled={disableChatbox}
+                                disabled={disableChatbox || conversationalModeActive}
                                 className={`p-4 flex items-center justify-center rounded-xl border transition-colors disabled:opacity-30 ${
                                     listening
                                         ? "bg-red-500 border-red-500 text-white animate-pulse"
@@ -547,13 +645,48 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                                 {listening ? <MdMicOff size={20} /> : <MdMic size={20} />}
                             </button>
                             <button
-                                className="px-6 border border-gray-300 rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-30 font-medium"
+                                type="button"
+                                onClick={startConversationalMode}
                                 disabled={disableChatbox}
+                                className={`p-4 flex items-center justify-center rounded-xl border transition-colors disabled:opacity-30 ${
+                                    conversationalModeActive
+                                        ? "bg-blue-500 border-blue-500 text-white"
+                                        : "border-gray-300 hover:bg-gray-100"
+                                }`}
+                                title="Start conversational mode"
                             >
-                                Send
+                                <MdRecordVoiceOver size={20} />
                             </button>
+                            {!conversationalModeActive && (
+                                <button
+                                    className="px-6 border border-gray-300 rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-30 font-medium"
+                                    disabled={disableChatbox}
+                                >
+                                    Send
+                                </button>
+                            )}
                         </div>
                     </form>
+                    {conversationalModeActive && (
+                        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-6 py-4 rounded-2xl border border-current/10 bg-background/90 backdrop-blur-lg shadow-lg">
+                            <div className={`w-3 h-3 rounded-full ${
+                                convStatus === "listening" ? "bg-green-500 animate-pulse" :
+                                convStatus === "thinking"  ? "bg-yellow-400 animate-spin" :
+                                "bg-blue-500 animate-pulse"
+                            }`} />
+                            <span className="text-sm font-medium">
+                                {convStatus === "listening" ? "Listening..." :
+                                 convStatus === "thinking"  ? "Thinking..." : "Speaking..."}
+                            </span>
+                            <button
+                                type="button"
+                                onClick={stopConversationalMode}
+                                className="ml-2 px-4 py-1.5 rounded-xl border border-current/10 text-sm font-semibold hover:opacity-60 transition-opacity"
+                            >
+                                End Conversation
+                            </button>
+                        </div>
+                    )}
                 </footer>
             </div>
         </div>
