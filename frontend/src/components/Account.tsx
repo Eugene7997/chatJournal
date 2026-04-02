@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { User } from "@/lib/types/types";
 
@@ -28,7 +29,7 @@ export default function Account({ user }: { user: User }) {
             <div className="max-w-md w-full space-y-8 bg-white border border-gray-200 p-10 rounded-xl shadow-sm">
                 <div className="flex flex-col items-center space-y-4">
                     {user.picture ? (
-                        <img
+                        <Image
                             src={user.picture}
                             alt="Profile picture"
                             width={100}
