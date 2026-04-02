@@ -11,7 +11,7 @@ export default function Account({ user }: { user: User }) {
                 method: "DELETE",
             });
 
-            let data = await response.json();
+            const data = await response.json();
             
             if (data) {
                 router.push("/auth/logout");
