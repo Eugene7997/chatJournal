@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
             [sessionId]
         );
 
-        const messages: string[] = result.rows;
+        const messages = result.rows;
 
         return new Response(JSON.stringify({ messages }), { status: 200 });
     }
