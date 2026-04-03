@@ -25,19 +25,22 @@ A conversational journaling app. Instead of staring at a blank page, you journal
 Create a `.env` file inside the `frontend/` directory:
 
 ```env
+# App
+APP_BASE_URL=http://localhost:3000
+
 # Auth0
 AUTH0_SECRET=
-AUTH0_BASE_URL=http://localhost:3000
-AUTH0_ISSUER_BASE_URL=
+AUTH0_DOMAIN=
 AUTH0_CLIENT_ID=
 AUTH0_CLIENT_SECRET=
 
 # Auth0 M2M (Management API)
+AUTH0_M2M_DOMAIN=
 AUTH0_M2M_CLIENT_ID=
 AUTH0_M2M_CLIENT_SECRET=
 
 # Database
-DATABASE_URL=
+DB_URL=
 
 # LLM
 OPENROUTER_API_KEY=
@@ -60,19 +63,37 @@ frontend/
   src/
     app/
       page.tsx              # Landing page
+      layout.tsx            # Root layout
       about/                # About page
-      login/                # Login / sign-up
-      chat/                 # Main journaling interface
       account/              # Account settings
+      chat/                 # Main journaling interface
+      journals/             # Saved journal entries
+      login/                # Login / sign-up
       api/
-        auth/               # Auth0 callbacks and delete
-        chat/               # Chat sessions, messages, persistence
+        auth/delete/        # Account deletion
+        chat/
+          message/          # GET/POST chat messages (SSE streaming)
+          chat_session/     # GET/POST/DELETE/PATCH sessions
+          journal/          # POST generate journal entry from session
+          save_message/     # POST persist a message
+        journals/           # GET/POST journal entries
     components/
-      Chat.tsx              # Core chat UI
+      ChatClient.tsx        # Core chat UI
       ChatSideBar.tsx       # Session navigation
+      JournalModal.tsx      # Journal entry modal
+      JournalsClient.tsx    # Journal list display
       Navbar.tsx            # Top navigation
+      NavbarClient.tsx      # Navbar client wrapper
+      NavbarProfile.tsx     # Profile section in navbar
       Account.tsx           # Account management
       AuthBox.tsx           # Auth UI
+      Footer.tsx            # Footer
+      ToastProvider.tsx     # Toast notifications
+    lib/
+      auth/auth0.ts         # Auth0 client
+      db/db.ts              # PostgreSQL connection pool
+      prompts/              # LLM system prompt templates
+      types/types.tsx       # Shared TypeScript interfaces
 ```
 
 ## Scripts
@@ -83,3 +104,7 @@ frontend/
 | `npm run build` | Build for production |
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
+| `npm run test` | Run Jest unit tests |
+| `npm run test:watch` | Run Jest in watch mode |
+| `npm run test:coverage` | Run Jest with coverage report |
+| `npx playwright test` | Run Playwright E2E tests |
