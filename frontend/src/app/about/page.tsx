@@ -2,15 +2,15 @@ export default function AboutPage() {
   return (
     <div className="flex flex-col">
       {/* Mission */}
-      <section className="flex flex-col items-center text-center px-6 py-24 gap-6 max-w-3xl mx-auto">
-        <h1 className="text-5xl font-bold tracking-tight">About ChatJournal</h1>
-        <p className="text-xl opacity-70 leading-relaxed">
+      <section className="flex flex-col items-center text-center px-6 py-12 sm:py-24 gap-6 max-w-3xl mx-auto">
+        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight">About ChatJournal</h1>
+        <p className="text-base sm:text-xl opacity-70 leading-relaxed">
           ChatJournal was born from a simple idea: journaling shouldn&apos;t feel
           like homework. Most people want to reflect and grow, but staring at a
           blank page is intimidating. We built a space where your thoughts flow
           naturally — through conversation.
         </p>
-        <p className="text-xl opacity-70 leading-relaxed">
+        <p className="text-base sm:text-xl opacity-70 leading-relaxed">
           Whether you&apos;re processing a hard day, tracking your goals, or just
           thinking out loud, ChatJournal meets you where you are — no templates,
           no pressure, no judgment.
@@ -18,9 +18,9 @@ export default function AboutPage() {
       </section>
 
       {/* How It Works */}
-      <section className="px-8 py-16 max-w-5xl mx-auto w-full">
-        <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+      <section className="px-4 sm:px-8 py-10 sm:py-16 max-w-5xl mx-auto w-full">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">How It Works</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8">
           {[
             {
               step: "1",
@@ -54,8 +54,8 @@ export default function AboutPage() {
       </section>
 
       {/* Philosophy */}
-      <section className="px-8 py-16 max-w-3xl mx-auto w-full">
-        <h2 className="text-3xl font-bold text-center mb-12">Our Philosophy</h2>
+      <section className="px-4 sm:px-8 py-10 sm:py-16 max-w-3xl mx-auto w-full">
+        <h2 className="text-2xl sm:text-3xl font-bold text-center mb-8 sm:mb-12">Our Philosophy</h2>
         <div className="flex flex-col gap-6">
           {[
             {
@@ -86,8 +86,8 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section className="flex flex-col items-center text-center px-6 py-20 gap-4">
-        <h2 className="text-3xl font-bold">Ready to begin?</h2>
+      <section className="flex flex-col items-center text-center px-6 py-12 sm:py-20 gap-4">
+        <h2 className="text-2xl sm:text-3xl font-bold">Ready to begin?</h2>
         <p className="opacity-60 max-w-md">
           Your first entry is just a conversation away.
         </p>
