@@ -2,11 +2,11 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero */}
-      <section className="flex flex-col items-center justify-center text-center px-6 py-24 gap-6">
-        <h1 className="text-5xl font-bold tracking-tight">
+      <section className="flex flex-col items-center justify-center text-center px-6 py-12 sm:py-24 gap-6">
+        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight">
           Your thoughts, in conversation.
         </h1>
-        <p className="text-xl max-w-xl opacity-70">
+        <p className="text-base sm:text-xl max-w-xl opacity-70">
           ChatJournal lets you journal through natural conversation. Reflect,
           revisit, and grow — one message at a time.
         </p>
@@ -27,7 +27,7 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 px-8 py-16 max-w-5xl mx-auto w-full">
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-6 px-4 sm:px-8 py-10 sm:py-16 max-w-5xl mx-auto w-full">
         {[
           {
             icon: "💬",
@@ -60,8 +60,8 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section className="flex flex-col items-center text-center px-6 py-20 gap-4">
-        <h2 className="text-3xl font-bold">Ready to start journaling?</h2>
+      <section className="flex flex-col items-center text-center px-6 py-12 sm:py-20 gap-4">
+        <h2 className="text-2xl sm:text-3xl font-bold">Ready to start journaling?</h2>
         <p className="opacity-60 max-w-md">
           Sign up for free and write your first entry in seconds.
         </p>
