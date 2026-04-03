@@ -82,6 +82,7 @@ function Calendar({
     // Drag state — dragAnchor being non-null means a drag is in progress
     const [dragAnchor, setDragAnchor] = useState<Date | null>(null);
     const [dragCursor, setDragCursor] = useState<Date | null>(null);
+    const gridRef = useRef<HTMLDivElement>(null);
 
     // Days with at least one journal
     const journalDays = new Set(journals.map(j => dayTs(new Date(j.created_at))));
@@ -98,9 +99,9 @@ function Calendar({
     const previewA = dragAnchor ?? rangeStart;
     const previewB = dragCursor ?? rangeEnd;
 
-    // Global mouseup to finalise drag
+    // Global mouseup/touchend to finalise drag
     useEffect(() => {
-        function onMouseUp() {
+        function onDragEnd() {
             if (!dragAnchor) return;
             if (dragCursor) {
                 const lo = new Date(Math.min(dayTs(dragAnchor), dayTs(dragCursor)));
@@ -111,9 +112,49 @@ function Calendar({
             setDragAnchor(null);
             setDragCursor(null);
         }
-        window.addEventListener("mouseup", onMouseUp);
-        return () => window.removeEventListener("mouseup", onMouseUp);
+        window.addEventListener("mouseup", onDragEnd);
+        window.addEventListener("touchend", onDragEnd);
+        return () => {
+            window.removeEventListener("mouseup", onDragEnd);
+            window.removeEventListener("touchend", onDragEnd);
+        };
     }, [dragAnchor, dragCursor, onRangeChange]);
+
+    // Non-passive touch listeners on the grid so we can preventDefault (stops page scroll during drag)
+    useEffect(() => {
+        const grid = gridRef.current;
+        if (!grid) return;
+
+        function dateFromPoint(x: number, y: number): Date | null {
+            const el = document.elementFromPoint(x, y);
+            const str = (el as HTMLElement | null)?.closest("[data-date]")?.getAttribute("data-date");
+            return str ? new Date(str) : null;
+        }
+
+        function onTouchStart(e: TouchEvent) {
+            const t = e.touches[0];
+            const day = dateFromPoint(t.clientX, t.clientY);
+            if (!day) return;
+            e.preventDefault();
+            setDragAnchor(day);
+            setDragCursor(day);
+        }
+
+        function onTouchMove(e: TouchEvent) {
+            const t = e.touches[0];
+            const day = dateFromPoint(t.clientX, t.clientY);
+            if (!day) return;
+            e.preventDefault();
+            setDragCursor(day);
+        }
+
+        grid.addEventListener("touchstart", onTouchStart, { passive: false });
+        grid.addEventListener("touchmove", onTouchMove, { passive: false });
+        return () => {
+            grid.removeEventListener("touchstart", onTouchStart);
+            grid.removeEventListener("touchmove", onTouchMove);
+        };
+    }, []);
 
     function handleMouseDown(day: Date) {
         setDragAnchor(day);
@@ -167,7 +208,7 @@ function Calendar({
             </div>
 
             {/* Day cells */}
-            <div className="grid grid-cols-7">
+            <div ref={gridRef} className="grid grid-cols-7">
                 {cells.map((day, i) => {
                     if (!day) return <div key={`blank-${i}`} className="h-8" />;
 
@@ -191,6 +232,7 @@ function Calendar({
                     return (
                         <div
                             key={day.toISOString()}
+                            data-date={day.toISOString()}
                             className={`h-8 flex items-center justify-center cursor-pointer transition-colors ${bgClass}`}
                             onMouseDown={() => handleMouseDown(day)}
                             onMouseEnter={() => handleMouseEnter(day)}
