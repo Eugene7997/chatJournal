@@ -361,9 +361,9 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                 </div>
             )}
 
-            <div className="flex gap-8 items-start">
+            <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 sm:items-start">
                 {/* Calendar sidebar */}
-                <div className="w-64 flex-none sticky top-6">
+                <div className="w-full sm:w-64 flex-none sm:sticky top-6">
                     <p className="text-xs font-semibold uppercase tracking-widest opacity-30 mb-3">
                         Filter by date
                     </p>
@@ -401,14 +401,14 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
 
                             return (
                                 <details key={journal.id} className="border border-current/10 rounded-2xl overflow-hidden group">
-                                    <summary className="px-6 py-4 cursor-pointer flex justify-between items-center hover:bg-current/5 transition-colors list-none gap-4">
+                                    <summary className="px-4 sm:px-6 py-4 cursor-pointer flex flex-col sm:flex-row sm:justify-between sm:items-center hover:bg-current/5 transition-colors list-none gap-2 sm:gap-4">
                                         <div className="flex items-center gap-3 min-w-0">
                                             <span className="font-semibold truncate">
                                                 {journal.title || date}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-3 flex-none">
-                                            <span className="text-xs opacity-30">{date}</span>
+                                            <span className="text-xs opacity-30 hidden sm:inline">{date}</span>
                                             <Link
                                                 href={`/chat?session=${journal.session_id}`}
                                                 onClick={e => e.stopPropagation()}
