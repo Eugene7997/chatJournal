@@ -71,7 +71,7 @@ export default function ChatSideBar({ sessions, onItemClick, onNewSession, onDel
     }
 
     return (
-        <div className="flex-2 border-r border-current/10 flex flex-col">
+        <div className="h-full border-r border-current/10 flex flex-col">
             <div className="px-4 py-4 border-b border-current/10 flex items-center justify-between">
                 <h1 className="text-sm font-semibold opacity-60 uppercase tracking-wide">Sessions</h1>
                 <button
