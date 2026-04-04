@@ -103,7 +103,7 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run public E2E tests
-        run: npx playwright test --project=public
+        run: npx playwright test --project=public-chromium --project=public-firefox --project=public-webkit
 
       - name: Upload Playwright report
         if: always()
@@ -139,7 +139,7 @@ jobs:
         run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Run authenticated E2E tests
-        run: npx playwright test --project=setup --project=authenticated
+        run: npx playwright test --project=setup --project=authenticated-chromium --project=authenticated-firefox --project=authenticated-webkit
 
       - name: Upload Playwright report
         if: always()
