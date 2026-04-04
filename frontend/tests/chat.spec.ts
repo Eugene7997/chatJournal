@@ -2,6 +2,11 @@ import { test, expect } from '@playwright/test'
 
 // All tests in this file run with the saved Auth0 session (see playwright.config.ts)
 
+// WebKit doesn't fire React's onChange when Playwright uses fill() on controlled
+// <textarea> elements — the native value is set but React state stays empty.
+// pressSequentially() types character-by-character, triggering the correct input
+// events, and is used for all textarea interactions throughout this file.
+
 test.describe('Chat page (/chat)', () => {
 
     // ─── Page structure ────────────────────────────────────────────────────────
@@ -26,7 +31,7 @@ test.describe('Chat page (/chat)', () => {
         await page.goto('/chat')
         const textarea = page.getByPlaceholder(/start typing/i)
         await expect(textarea).toBeVisible()
-        await textarea.fill('Hello, this is a test message')
+        await textarea.pressSequentially('Hello, this is a test message')
         await expect(textarea).toHaveValue('Hello, this is a test message')
     })
 
@@ -37,7 +42,7 @@ test.describe('Chat page (/chat)', () => {
         await page.goto('/chat')
 
         const textarea = page.getByPlaceholder(/start typing/i)
-        await textarea.fill('Say "hi" in exactly one word.')
+        await textarea.pressSequentially('Say "hi" in exactly one word.')
         await page.getByRole('button', { name: /^send$/i }).click()
 
         // User bubble appears immediately
@@ -56,7 +61,7 @@ test.describe('Chat page (/chat)', () => {
         await page.goto('/chat')
 
         // Send a message to create a session
-        await page.getByPlaceholder(/start typing/i).fill('Hello')
+        await page.getByPlaceholder(/start typing/i).pressSequentially('Hello')
         await page.getByRole('button', { name: /^send$/i }).click()
 
         // Wait for the session to be created and button to appear
@@ -77,7 +82,7 @@ test.describe('Chat page (/chat)', () => {
 
         if (count === 0) {
             // No sessions yet — create one first
-            await page.getByPlaceholder(/start typing/i).fill('Test')
+            await page.getByPlaceholder(/start typing/i).pressSequentially('Test')
             await page.getByRole('button', { name: /^send$/i }).click()
             await page.waitForTimeout(2_000)
         }
@@ -91,10 +96,10 @@ test.describe('Chat page (/chat)', () => {
         // Scope to the sidebar list item to avoid matching the chat textarea
         const renameInput = page.locator('ul li input[type="text"], ul li input:not([type])')
         await renameInput.clear()
-        await renameInput.fill('E2E Renamed Session')
+        await renameInput.pressSequentially('E2E Renamed Session')
         await renameInput.press('Enter')
 
-        await expect(page.getByText('E2E Renamed Session')).toBeVisible()
+        await expect(page.locator('ul li').filter({ hasText: 'E2E Renamed Session' }).first()).toBeVisible()
     })
 
     // ─── Session delete ────────────────────────────────────────────────────────
@@ -108,7 +113,7 @@ test.describe('Chat page (/chat)', () => {
         const count = await sessionItems.count()
 
         if (count === 0) {
-            await page.getByPlaceholder(/start typing/i).fill('Test session for deletion')
+            await page.getByPlaceholder(/start typing/i).pressSequentially('Test session for deletion')
             await page.getByRole('button', { name: /^send$/i }).click()
             await page.waitForTimeout(2_000)
         }

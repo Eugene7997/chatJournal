@@ -20,19 +20,46 @@ export default defineConfig({
       testMatch: '**/global.setup.ts',
     },
 
-    // Unauthenticated tests (public pages, auth redirects)
-    // These do NOT use storageState so the app sees an anonymous visitor.
+    // Unauthenticated tests (public pages, auth redirects) — run on all three browsers
     {
-      name: 'public',
+      name: 'public-chromium',
       use: { ...devices['Desktop Chrome'] },
+      testIgnore: ['**/chat.spec.ts', '**/journals.spec.ts', '**/global.setup.ts'],
+    },
+    {
+      name: 'public-firefox',
+      use: { ...devices['Desktop Firefox'] },
+      testIgnore: ['**/chat.spec.ts', '**/journals.spec.ts', '**/global.setup.ts'],
+    },
+    {
+      name: 'public-webkit',
+      use: { ...devices['Desktop Safari'] },
       testIgnore: ['**/chat.spec.ts', '**/journals.spec.ts', '**/global.setup.ts'],
     },
 
     // Authenticated tests — reuse the session cookie saved by the setup project
     {
-      name: 'authenticated',
+      name: 'authenticated-chromium',
       use: {
         ...devices['Desktop Chrome'],
+        storageState: 'tests/.auth/user.json',
+      },
+      dependencies: ['setup'],
+      testMatch: ['**/chat.spec.ts', '**/journals.spec.ts'],
+    },
+    {
+      name: 'authenticated-firefox',
+      use: {
+        ...devices['Desktop Firefox'],
+        storageState: 'tests/.auth/user.json',
+      },
+      dependencies: ['setup'],
+      testMatch: ['**/chat.spec.ts', '**/journals.spec.ts'],
+    },
+    {
+      name: 'authenticated-webkit',
+      use: {
+        ...devices['Desktop Safari'],
         storageState: 'tests/.auth/user.json',
       },
       dependencies: ['setup'],

@@ -696,6 +696,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                             </button>
                             {!conversationalModeActive && (
                                 <button
+                                    type="submit"
                                     className="px-3 sm:px-6 border border-gray-300 rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-30 font-medium text-sm"
                                     disabled={disableChatbox}
                                 >
