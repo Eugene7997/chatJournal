@@ -44,8 +44,8 @@ export async function POST(request: NextRequest) {
         day: "numeric",
     });
 
-    const conversation = result.rows
-        .map((row: { role: string; content: string; created_at: string }) => {
+    const conversation = (result.rows as { role: string; content: string; created_at: string }[])
+        .map((row) => {
             const time = new Date(row.created_at).toLocaleTimeString("en-US", {
                 hour: "2-digit",
                 minute: "2-digit",

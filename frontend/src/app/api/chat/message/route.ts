@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
             `SELECT role, content FROM chat_messages WHERE session_id = $1 ORDER BY created_at`,
             [sessionId]
         );
-        historyMessages = historyResult.rows;
+        historyMessages = historyResult.rows as { role: string; content: string }[];
     }
 
     const payLoad = {
