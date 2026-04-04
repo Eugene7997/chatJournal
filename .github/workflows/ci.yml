@@ -64,6 +64,10 @@ jobs:
     environment: env
     env:
       APP_BASE_URL: http://localhost:3000
+      AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+      AUTH0_SECRET: ${{ secrets.AUTH0_SECRET }}
+      AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
     steps:
       - uses: actions/checkout@v4
 
@@ -87,6 +91,10 @@ jobs:
     environment: env
     env:
       APP_BASE_URL: http://localhost:3000
+      AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+      AUTH0_SECRET: ${{ secrets.AUTH0_SECRET }}
+      AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
     steps:
       - uses: actions/checkout@v4
 
@@ -100,7 +108,7 @@ jobs:
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Run public E2E tests
         run: npx playwright test --project=public-chromium --project=public-firefox --project=public-webkit
@@ -123,6 +131,12 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     env:
       APP_BASE_URL: http://localhost:3000
+      AUTH0_DOMAIN: ${{ secrets.AUTH0_DOMAIN }}
+      AUTH0_CLIENT_ID: ${{ secrets.AUTH0_CLIENT_ID }}
+      AUTH0_SECRET: ${{ secrets.AUTH0_SECRET }}
+      AUTH0_CLIENT_SECRET: ${{ secrets.AUTH0_CLIENT_SECRET }}
+      E2E_AUTH0_USERNAME: ${{ secrets.E2E_AUTH0_USERNAME }}
+      E2E_AUTH0_PASSWORD: ${{ secrets.E2E_AUTH0_PASSWORD }}
     steps:
       - uses: actions/checkout@v4
 
