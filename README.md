@@ -44,6 +44,10 @@ DB_URL=
 
 # LLM
 OPENROUTER_API_KEY=
+
+# Playwright test
+E2E_AUTH0_USERNAME=
+E2E_AUTH0_PASSWORD=
 ```
 
 ### Running Locally
@@ -104,7 +108,40 @@ frontend/
 | `npm run build` | Build for production |
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
-| `npm run test` | Run Jest unit tests |
+| `npm run test` | Run Jest unit + component tests |
 | `npm run test:watch` | Run Jest in watch mode |
 | `npm run test:coverage` | Run Jest with coverage report |
-| `npx playwright test` | Run Playwright E2E tests |
+| `npx playwright test` | Run all Playwright E2E tests |
+| `npx playwright test --project=public` | Run public-page tests only (no credentials needed) |
+
+## Testing
+
+### Jest (unit + component)
+
+Tests live in `frontend/src/__tests__/`. Covers API routes, helper functions, and React components via React Testing Library.
+
+```bash
+cd frontend
+npm test
+```
+
+### Playwright (E2E)
+
+Tests live in `frontend/tests/`. Three projects: `setup` (Auth0 login), `public` (unauthenticated), and `authenticated` (requires a real session).
+
+Install the browser once:
+```bash
+cd frontend
+npx playwright install chromium
+```
+
+Run public tests (no credentials required):
+```bash
+npx playwright test --project=public
+```
+
+Run all tests including authenticated pages:
+```bash
+cd frontend
+npx playwright test
+```
