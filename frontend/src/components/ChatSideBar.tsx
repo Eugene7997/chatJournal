@@ -106,7 +106,7 @@ export default function ChatSideBar({ sessions, onItemClick, onNewSession, onDel
                                         className="flex-1 text-sm px-1 rounded border border-current/20 bg-transparent"
                                         value={renameValue}
                                         onChange={(e) => setRenameValue(e.target.value)}
-                                        onBlur={() => commitRename(session.id)}
+                                        onBlur={() => setRenamingSessionId(null)}
                                         onKeyDown={(e) => handleRenameKeyDown(e, session.id)}
                                         onClick={(e) => e.stopPropagation()}
                                     />
