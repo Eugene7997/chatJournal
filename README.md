@@ -49,6 +49,7 @@ OPENROUTER_API_KEY=
 # Playwright test
 E2E_AUTH0_USERNAME=
 E2E_AUTH0_PASSWORD=
+RUN_LLM_TESTS=true
 ```
 
 ### Running Locally
@@ -176,3 +177,5 @@ GitHub Actions runs on every push and pull request to `main`:
 - OCR for physical diaries
 - Implement stream cancellation
 - Experiment integration with messaging platforms to generate journals based on text messages and calls.
+- Add page loading screen.
+- Improve vercel deployment performance.
