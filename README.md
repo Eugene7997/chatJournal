@@ -49,6 +49,7 @@ OPENROUTER_API_KEY=
 # Playwright test
 E2E_AUTH0_USERNAME=
 E2E_AUTH0_PASSWORD=
+RUN_LLM_TESTS=true
 ```
 
 ### Running Locally
