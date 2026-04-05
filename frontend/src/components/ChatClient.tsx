@@ -42,6 +42,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
     const [convStatus, setConvStatus] = useState<"listening" | "thinking" | "speaking">("listening");
     const conversationalModeRef = useRef<boolean>(false);
     const synthRef = useRef<SpeechSynthesisUtterance | null>(null);
+    const speakKeepAliveRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const sendingRef = useRef<boolean>(false);
 
     async function saveMessage(
@@ -428,11 +429,31 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
 
     function speakText(text: string): Promise<void> {
         return new Promise((resolve) => {
+            if (speakKeepAliveRef.current) {
+                clearInterval(speakKeepAliveRef.current);
+                speakKeepAliveRef.current = null;
+            }
+
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = "en-US";
-            utterance.onend = () => resolve();
-            utterance.onerror = () => resolve();
+
+            // Mobile browsers (iOS/Android) silently pause long utterances — resume() keeps it alive
+            speakKeepAliveRef.current = setInterval(() => {
+                if (window.speechSynthesis.paused) {
+                    window.speechSynthesis.resume();
+                }
+            }, 250);
+
+            const cleanup = () => {
+                if (speakKeepAliveRef.current) {
+                    clearInterval(speakKeepAliveRef.current);
+                    speakKeepAliveRef.current = null;
+                }
+            };
+
+            utterance.onend = () => { cleanup(); resolve(); };
+            utterance.onerror = () => { cleanup(); resolve(); };
             synthRef.current = utterance;
             window.speechSynthesis.speak(utterance);
         });
@@ -489,6 +510,13 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
             return;
         }
         if (listening) { recognitionRef.current?.stop(); setListening(false); }
+
+        // Unlock speech synthesis on the user gesture — mobile browsers (iOS/Android Chrome)
+        // block speechSynthesis.speak() in async contexts; priming it here makes later calls work.
+        const unlock = new SpeechSynthesisUtterance("");
+        window.speechSynthesis.speak(unlock);
+        window.speechSynthesis.cancel();
+
         conversationalModeRef.current = true;
         setConversationalModeActive(true);
         startConversationalListening();
@@ -497,6 +525,10 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
     function stopConversationalMode() {
         conversationalModeRef.current = false;
         sendingRef.current = false;
+        if (speakKeepAliveRef.current) {
+            clearInterval(speakKeepAliveRef.current);
+            speakKeepAliveRef.current = null;
+        }
         window.speechSynthesis.cancel();
         synthRef.current = null;
         recognitionRef.current?.abort();
@@ -568,6 +600,9 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
             textarea?.removeEventListener("keydown", handleTextAreaCustomEnter);
             if (flushTimer.current) {
                 clearInterval(flushTimer.current);
+            }
+            if (speakKeepAliveRef.current) {
+                clearInterval(speakKeepAliveRef.current);
             }
             window.speechSynthesis?.cancel();
             recognitionRef.current?.abort();
