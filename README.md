@@ -177,3 +177,5 @@ GitHub Actions runs on every push and pull request to `main`:
 - OCR for physical diaries
 - Implement stream cancellation
 - Experiment integration with messaging platforms to generate journals based on text messages and calls.
+- Add page loading screen.
+- Improve vercel deployment performance.
