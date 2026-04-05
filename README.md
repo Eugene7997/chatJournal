@@ -9,7 +9,8 @@ A conversational journaling app. Instead of staring at a blank page, you journal
 - **Styling:** Tailwind CSS v4
 - **Auth:** Auth0
 - **Database:** PostgreSQL (Supabase)
-- **LLM:** OpenRouter API
+- **LLM:** OpenRouter API (default model: `google/gemini-2.5-flash-lite`)
+- **Runtime:** React 19, Node.js 20
 
 ## Getting Started
 
@@ -112,7 +113,7 @@ frontend/
 | `npm run test:watch` | Run Jest in watch mode |
 | `npm run test:coverage` | Run Jest with coverage report |
 | `npx playwright test` | Run all Playwright E2E tests |
-| `npx playwright test --project=public` | Run public-page tests only (no credentials needed) |
+| `npx playwright test --project=public-chromium --project=public-firefox --project=public-webkit` | Run public-page tests only (no credentials needed) |
 
 ## Testing
 
@@ -127,17 +128,25 @@ npm test
 
 ### Playwright (E2E)
 
-Tests live in `frontend/tests/`. Three projects: `setup` (Auth0 login), `public` (unauthenticated), and `authenticated` (requires a real session).
+Tests live in `frontend/tests/`. Runs on Chromium, Firefox, and WebKit.
 
-Install the browser once:
+Install the browsers once:
 ```bash
 cd frontend
-npx playwright install chromium
+npx playwright install chromium firefox webkit
 ```
+
+**Projects:**
+
+| Project | Auth | Spec files |
+|---------|------|------------|
+| `setup` | — | `global.setup.ts` — logs in via Auth0, writes session cookie |
+| `public-{chromium,firefox,webkit}` | None | All specs except `chat.spec.ts`, `journals.spec.ts` |
+| `authenticated-{chromium,firefox,webkit}` | Auth0 session | `chat.spec.ts`, `journals.spec.ts` |
 
 Run public tests (no credentials required):
 ```bash
-npx playwright test --project=public
+npx playwright test --project=public-chromium --project=public-firefox --project=public-webkit
 ```
 
 Run all tests including authenticated pages:
@@ -145,3 +154,25 @@ Run all tests including authenticated pages:
 cd frontend
 npx playwright test
 ```
+
+## CI/CD
+
+GitHub Actions runs on every push and pull request to `main`:
+
+| Job | Trigger | What it does |
+|-----|---------|--------------|
+| Lint | push + PR | Runs ESLint |
+| Unit Tests | push + PR | Runs Jest with coverage; uploads report as artifact |
+| Build | push + PR | Builds the Next.js production bundle |
+| E2E Public | push + PR | Runs Playwright public-page tests on Chromium, Firefox, and WebKit |
+| E2E Authenticated | push to `main` only | Runs Playwright authenticated tests on all three browsers |
+
+## Known Limitations
+
+- Stream cancellation is not implemented
+
+## Future works
+
+- OCR for physical diaries
+- Implement stream cancellation
+- Experiment integration with messaging platforms to generate journals based on text messages and calls.
