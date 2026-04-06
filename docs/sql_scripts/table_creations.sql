@@ -70,3 +70,7 @@ create table public.journals (
     references users(sub)
     on delete cascade
 );
+
+-- Indexes for filtering/sorting by user (sub) on the two most-queried tables
+CREATE INDEX idx_chat_sessions_sub ON public.chat_sessions(sub, created_at DESC);
+CREATE INDEX idx_journals_sub ON public.journals(sub, created_at DESC);
