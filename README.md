@@ -2,6 +2,10 @@
 
 A conversational journaling app. Instead of staring at a blank page, you journal through natural dialogue — write your thoughts, reflect on past entries, and grow over time.
 
+## Demo
+
+https://github.com/user-attachments/assets/2960bbec-3970-4869-89b0-ba7d56e35e68
+
 ## Tech Stack
 
 - **Framework:** Next.js 16 (App Router)
