@@ -9,6 +9,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 const labels = [
@@ -119,17 +120,17 @@ export function MynaHero() {
               <Button
                 size="lg"
                 className="cursor-pointer rounded-none bg-brand hover:bg-brand/90 font-mono"
-                onClick={() => (window.location.href = "/login")}
+                asChild
               >
-                GET STARTED <ArrowRight className="ml-1 w-4 h-4" />
+                <Link href="/login">GET STARTED <ArrowRight className="ml-1 w-4 h-4" /></Link>
               </Button>
               <Button
                 size="lg"
                 variant="outline"
                 className="cursor-pointer rounded-none font-mono"
-                onClick={() => (window.location.href = "/about")}
+                asChild
               >
-                LEARN MORE
+                <Link href="/about">LEARN MORE</Link>
               </Button>
             </motion.div>
           </div>
@@ -209,9 +210,9 @@ export function MynaHero() {
             <Button
               size="lg"
               className="cursor-pointer rounded-none mt-2 bg-brand hover:bg-brand/90 font-mono"
-              onClick={() => (window.location.href = "/login")}
+              asChild
             >
-              CREATE AN ACCOUNT <ArrowRight className="ml-1 w-4 h-4" />
+              <Link href="/login">CREATE AN ACCOUNT <ArrowRight className="ml-1 w-4 h-4" /></Link>
             </Button>
           </motion.div>
         </section>

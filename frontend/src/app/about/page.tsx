@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowRight, BookOpen, MessageSquare, Shield } from "lucide-react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 const howItWorks = [
@@ -207,9 +208,9 @@ export default function AboutPage() {
           <Button
             size="lg"
             className="cursor-pointer rounded-none mt-2 bg-brand hover:bg-brand/90 font-mono"
-            onClick={() => (window.location.href = "/login")}
+            asChild
           >
-            GET STARTED FREE <ArrowRight className="ml-1 w-4 h-4" />
+            <Link href="/login">GET STARTED FREE <ArrowRight className="ml-1 w-4 h-4" /></Link>
           </Button>
         </motion.div>
       </section>
