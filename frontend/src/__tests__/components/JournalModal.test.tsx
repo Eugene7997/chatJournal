@@ -41,10 +41,10 @@ describe('JournalModal rendering', () => {
         expect(screen.getByText('09:00 - Entry: Had a productive morning.')).toBeInTheDocument()
     })
 
-    it('renders "Date:" line with font-semibold class', () => {
+    it('renders "Date:" line with font-bold class', () => {
         renderModal()
         const dateParagraph = screen.getByText('Date: Monday, January 1, 2024')
-        expect(dateParagraph).toHaveClass('font-semibold')
+        expect(dateParagraph).toHaveClass('font-bold')
     })
 
     it('renders "Feelings:" line with italic class', () => {

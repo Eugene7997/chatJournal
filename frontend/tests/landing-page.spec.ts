@@ -29,9 +29,9 @@ test.describe('Landing page (/)', () => {
     })
 
     test('features section renders all three feature cards', async ({ page }) => {
-        await expect(page.getByText('Conversational Journaling')).toBeVisible()
-        await expect(page.getByText('Revisit Past Entries')).toBeVisible()
-        await expect(page.getByText('Private & Secure')).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Conversational Journaling' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Revisit Past Entries' })).toBeVisible()
+        await expect(page.getByRole('heading', { name: 'Private & Secure' })).toBeVisible()
     })
 
     test('bottom CTA section has a "Create an Account" link', async ({ page }) => {

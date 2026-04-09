@@ -31,7 +31,7 @@ test.describe('Journals page (/journals)', () => {
     test('calendar navigates to the previous month', async ({ page }) => {
         await page.goto('/journals')
         // Read current month label
-        const monthLabel = page.locator('span.text-sm.font-semibold').first()
+        const monthLabel = page.locator('span.font-mono.font-bold.uppercase').first()
         const before = await monthLabel.textContent()
         await page.getByRole('button', { name: '‹' }).click()
         const after = await monthLabel.textContent()
