@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { FaPlus } from "react-icons/fa";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { Plus, Loader2 } from "lucide-react";
 import type { ChatSession } from "@/lib/types/types";
 
 export default function ChatSideBar({ sessions, onItemClick, onNewSession, onDeleteSession, onRenameSession, loading }: {
@@ -73,27 +72,27 @@ export default function ChatSideBar({ sessions, onItemClick, onNewSession, onDel
     return (
         <div className="h-full border-r border-current/10 flex flex-col">
             <div className="px-4 py-4 border-b border-current/10 flex items-center justify-between">
-                <h1 className="text-sm font-semibold opacity-60 uppercase tracking-wide">Sessions</h1>
+                <h1 className="font-mono text-xs font-bold opacity-40 uppercase tracking-widest">Sessions</h1>
                 <button
-                    className="text-sm px-2 py-1 rounded-lg hover:bg-foreground/5 transition-opacity opacity-60 hover:opacity-100"
+                    className="p-1.5 hover:text-brand transition-colors opacity-60 hover:opacity-100"
                     onClick={onNewSession}
                     aria-label="New conversation"
                     title="New conversation"
                 >
-                    <FaPlus />
+                    <Plus size={16} />
                 </button>
             </div>
             <div className="flex-1 overflow-y-auto no-scrollbar">
-                {loading ?
+                {loading ? (
                     <div className="flex justify-center items-center py-8 opacity-40">
-                        <AiOutlineLoading3Quarters className="animate-spin text-xl" />
+                        <Loader2 className="animate-spin" size={18} />
                     </div>
-                    :
+                ) : (
                     <ul className="flex flex-col p-2">
                         {sessions && sessions.map((session) => (
                             <li
                                 key={session.id}
-                                className="relative cursor-pointer flex items-center justify-between rounded-xl px-3 py-2 hover:bg-foreground/5 transition-opacity"
+                                className="relative cursor-pointer flex items-center justify-between px-3 py-2 hover:bg-foreground/5 transition-colors"
                                 onClick={() => {
                                     if (renamingSessionId === session.id) return;
                                     setOpenMenuSessionId(null);
@@ -103,7 +102,7 @@ export default function ChatSideBar({ sessions, onItemClick, onNewSession, onDel
                                 {renamingSessionId === session.id ? (
                                     <input
                                         ref={renameInputRef}
-                                        className="flex-1 text-sm px-1 rounded border border-current/20 bg-transparent"
+                                        className="flex-1 font-mono text-xs px-2 py-1 border border-current/20 bg-transparent focus:outline-none focus:border-brand transition-colors"
                                         value={renameValue}
                                         onChange={(e) => setRenameValue(e.target.value)}
                                         onBlur={() => setRenamingSessionId(null)}
@@ -111,26 +110,26 @@ export default function ChatSideBar({ sessions, onItemClick, onNewSession, onDel
                                         onClick={(e) => e.stopPropagation()}
                                     />
                                 ) : (
-                                    <span className="truncate text-sm">{session.name ?? session.id}</span>
+                                    <span className="truncate font-mono text-xs">{session.name ?? session.id}</span>
                                 )}
                                 <div className="relative">
                                     <button
-                                        className="px-1 hover:opacity-60 transition-opacity"
+                                        className="px-1 opacity-40 hover:opacity-100 hover:text-brand transition-colors font-mono"
                                         onClick={(e) => toggleMenu(e, session.id)}
                                         aria-label="Session options"
                                     >
                                         &#8943;
                                     </button>
                                     {openMenuSessionId === session.id && (
-                                        <div className="absolute right-0 top-full mt-1 bg-background border border-current/10 rounded-xl shadow-md z-10 min-w-25">
+                                        <div className="absolute right-0 top-full mt-1 bg-background border border-current/10 shadow-md z-10 min-w-28">
                                             <button
-                                                className="w-full text-left px-3 py-2 text-sm hover:bg-foreground/5 rounded-t-xl"
+                                                className="w-full text-left px-3 py-2 font-mono text-xs hover:bg-foreground/5 hover:text-brand transition-colors border-b border-current/10"
                                                 onClick={(e) => handleRenameClick(e, session)}
                                             >
                                                 Rename
                                             </button>
                                             <button
-                                                className="w-full text-left px-3 py-2 text-sm opacity-60 hover:bg-foreground/5 rounded-b-xl"
+                                                className="w-full text-left px-3 py-2 font-mono text-xs opacity-60 hover:opacity-100 hover:text-red-500 hover:bg-foreground/5 transition-colors"
                                                 onClick={(e) => handleDelete(e, session.id)}
                                             >
                                                 Delete
@@ -141,8 +140,8 @@ export default function ChatSideBar({ sessions, onItemClick, onNewSession, onDel
                             </li>
                         ))}
                     </ul>
-                }
+                )}
             </div>
         </div>
-    )
+    );
 }

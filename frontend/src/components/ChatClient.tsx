@@ -5,8 +5,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { MdMic, MdMicOff, MdRecordVoiceOver, MdMenu } from "react-icons/md";
+import { Loader2, Mic, MicOff, AudioLines, Menu } from "lucide-react";
 import ChatSideBar from "@/src/components/ChatSideBar";
 import JournalModal from "@/src/components/JournalModal";
 import type { ChatCompletionResponse, ChatMessage, ChatSession, Usage } from "@/lib/types/types";
@@ -213,7 +212,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
 
                     try {
                         const parsed = JSON.parse(data);
-                        
+
                         if (!finalResponse.id) {
                             finalResponse.id = parsed.id;
                             finalResponse.model = parsed.model;
@@ -238,7 +237,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                         if (content) {
                             tokenQueue.current.push(content);
                         }
-                    } 
+                    }
                     catch (error) {
                         setUserMsg(messageToSend);
                         console.error(error);
@@ -266,7 +265,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                 throw new Error("Invalid response from server");
             }
 
-                const retrieved = data.messages.map((row: ChatMessage) => ({
+            const retrieved = data.messages.map((row: ChatMessage) => ({
                 role: row.role as "user" | "assistant",
                 content: row.content,
             }));
@@ -356,7 +355,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                 console.error(`Journal generation failed: ${response.statusText}`);
                 return;
             }
-            
+
             const data = await response.json();
 
             setJournalContent(data.content ?? "");
@@ -639,35 +638,35 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
 
             <div className="flex-1 md:flex-8 flex flex-col min-w-0">
                 {/* Top bar: hamburger on mobile + generate journal button */}
-                <div className={`flex-none flex items-center justify-between px-3 sm:px-6 py-2 border-b border-slate-100 ${!currentChatSession ? "md:hidden" : ""}`}>
+                <div className={`flex-none flex items-center justify-between px-3 sm:px-6 py-2 border-b border-current/10 ${!currentChatSession ? "md:hidden" : ""}`}>
                     <button
-                        className="md:hidden p-1.5 rounded-lg hover:bg-foreground/5 transition-colors"
+                        className="md:hidden p-1.5 hover:text-brand transition-colors"
                         onClick={() => setSidebarOpen(true)}
                         aria-label="Open sessions"
                     >
-                        <MdMenu size={20} />
+                        <Menu size={18} />
                     </button>
                     {currentChatSession && (
                         <button
                             onClick={generateJournal}
                             disabled={generatingJournal}
-                            className="ml-auto flex items-center gap-2 text-sm px-3 py-1.5 rounded-xl border border-current font-semibold hover:opacity-60 disabled:opacity-30 transition-opacity"
+                            className="ml-auto flex items-center gap-2 font-mono text-xs px-3 py-1.5 border border-current/20 font-semibold hover:border-brand hover:text-brand disabled:opacity-30 transition-colors"
                         >
-                            {generatingJournal && <AiOutlineLoading3Quarters className="animate-spin" />}
-                            {generatingJournal ? "Generating..." : "Generate Journal"}
+                            {generatingJournal && <Loader2 size={12} className="animate-spin" />}
+                            {generatingJournal ? "GENERATING..." : "GENERATE JOURNAL"}
                         </button>
                     )}
                 </div>
 
                 {loadingMessages ? (
                     <div className="flex-1 flex justify-center items-center opacity-40">
-                        <AiOutlineLoading3Quarters className="animate-spin text-2xl" />
+                        <Loader2 className="animate-spin" size={22} />
                     </div>
                 ) : (
                     <div className="flex-1 overflow-y-auto flex flex-col gap-3 px-3 sm:px-6 py-4">
                         {messages.map((msg, i) => (
                             <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                                <div className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 sm:px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
+                                <div className={`max-w-[85%] sm:max-w-[75%] px-3 sm:px-4 py-3 font-mono text-sm leading-relaxed whitespace-pre-wrap ${
                                     msg.role === "user"
                                         ? "bg-foreground text-background"
                                         : "bg-foreground/5 border border-current/10"
@@ -678,7 +677,7 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                         ))}
                         {chatBotResponse && (
                             <div className="flex justify-start">
-                                <div className="max-w-[85%] sm:max-w-[75%] rounded-2xl px-3 sm:px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap bg-foreground/5 border border-current/10">
+                                <div className="max-w-[85%] sm:max-w-[75%] px-3 sm:px-4 py-3 font-mono text-sm leading-relaxed whitespace-pre-wrap bg-foreground/5 border border-current/10">
                                     {chatBotResponse}
                                 </div>
                             </div>
@@ -686,17 +685,19 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                         <div ref={messagesEndRef} />
                     </div>
                 )}
-                <footer className="flex-none backdrop-blur-lg border-t border-slate-200">
+
+                <footer className="flex-none border-t border-current/10">
                     <form
                         ref={formRef}
-                        className="w-full flex gap-2 sm:gap-8 px-3 sm:px-8 py-3 sm:py-4"
+                        className="w-full flex gap-2 sm:gap-4 px-3 sm:px-6 py-3 sm:py-4"
                         onSubmit={handleSubmit}
                     >
                         {!conversationalModeActive && (
                             <textarea
                                 ref={textareaRef}
-                                className="flex-1 border-2 border-gray-300 rounded-xl p-2 sm:p-4 text-sm"
-                                placeholder="Start typing!"
+                                className="flex-1 border border-current/20 font-mono text-sm p-3 bg-transparent focus:outline-none focus:border-brand transition-colors resize-none"
+                                placeholder="Start typing…"
+                                rows={1}
                                 value={userMsg}
                                 onChange={(e) => setUserMsg(e.target.value)}
                                 disabled={disableChatbox}
@@ -707,56 +708,57 @@ export default function ChatClient({ initialSessionId }: { initialSessionId?: st
                                 type="button"
                                 onClick={toggleMic}
                                 disabled={disableChatbox || conversationalModeActive}
-                                className={`p-2 sm:p-4 flex items-center justify-center rounded-xl border transition-colors disabled:opacity-30 ${
+                                className={`p-3 flex items-center justify-center border transition-colors disabled:opacity-30 ${
                                     listening
-                                        ? "bg-red-500 border-red-500 text-white animate-pulse"
-                                        : "border-gray-300 hover:bg-gray-100"
+                                        ? "bg-brand border-brand text-white animate-pulse"
+                                        : "border-current/20 hover:border-brand hover:text-brand"
                                 }`}
                                 title={listening ? "Stop recording" : "Start recording"}
                             >
-                                {listening ? <MdMicOff size={20} /> : <MdMic size={20} />}
+                                {listening ? <MicOff size={18} /> : <Mic size={18} />}
                             </button>
                             <button
                                 type="button"
                                 onClick={startConversationalMode}
                                 disabled={disableChatbox}
-                                className={`p-2 sm:p-4 flex items-center justify-center rounded-xl border transition-colors disabled:opacity-30 ${
+                                className={`p-3 flex items-center justify-center border transition-colors disabled:opacity-30 ${
                                     conversationalModeActive
-                                        ? "bg-blue-500 border-blue-500 text-white"
-                                        : "border-gray-300 hover:bg-gray-100"
+                                        ? "bg-brand border-brand text-white"
+                                        : "border-current/20 hover:border-brand hover:text-brand"
                                 }`}
                                 title="Start conversational mode"
                             >
-                                <MdRecordVoiceOver size={20} />
+                                <AudioLines size={18} />
                             </button>
                             {!conversationalModeActive && (
                                 <button
                                     type="submit"
-                                    className="px-3 sm:px-6 border border-gray-300 rounded-xl hover:bg-gray-100 transition-colors disabled:opacity-30 font-medium text-sm"
+                                    className="px-4 sm:px-6 border border-current/20 font-mono text-xs font-semibold hover:bg-brand hover:border-brand hover:text-white transition-colors disabled:opacity-30"
                                     disabled={disableChatbox}
                                 >
-                                    Send
+                                    SEND
                                 </button>
                             )}
                         </div>
                     </form>
+
                     {conversationalModeActive && (
-                        <div className="fixed bottom-24 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-4 rounded-2xl border border-current/10 bg-background/90 backdrop-blur-lg shadow-lg">
-                            <div className={`w-3 h-3 rounded-full ${
+                        <div className="fixed bottom-24 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3 sm:py-4 border border-current/10 bg-background/90 backdrop-blur-lg shadow-lg">
+                            <div className={`w-2.5 h-2.5 rounded-full ${
                                 convStatus === "listening" ? "bg-green-500 animate-pulse" :
-                                convStatus === "thinking"  ? "bg-yellow-400 animate-spin" :
-                                "bg-blue-500 animate-pulse"
+                                convStatus === "thinking"  ? "bg-brand animate-spin" :
+                                "bg-brand animate-pulse"
                             }`} />
-                            <span className="text-sm font-medium">
+                            <span className="font-mono text-xs font-semibold uppercase tracking-wide">
                                 {convStatus === "listening" ? "Listening..." :
                                  convStatus === "thinking"  ? "Thinking..." : "Speaking..."}
                             </span>
                             <button
                                 type="button"
                                 onClick={stopConversationalMode}
-                                className="ml-2 px-3 sm:px-4 py-1.5 rounded-xl border border-current/10 text-sm font-semibold hover:opacity-60 transition-opacity"
+                                className="ml-2 px-3 py-1.5 border border-current/20 font-mono text-xs font-semibold hover:border-brand hover:text-brand transition-colors"
                             >
-                                End
+                                END
                             </button>
                         </div>
                     )}
