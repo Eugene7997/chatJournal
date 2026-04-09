@@ -1,10 +1,15 @@
 "use client";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import type { User } from "@/lib/types/types";
 
-export default function Account({ user }: { user: User }) {
+import Image from "next/image";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { LogOut, Trash2, User } from "lucide-react";
+import type { User as UserType } from "@/lib/types/types";
+
+export default function Account({ user }: { user: UserType }) {
     const router = useRouter();
+    const [deleteConfirm, setDeleteConfirm] = useState(false);
 
     async function handleDeleteAccount() {
         try {
@@ -13,7 +18,7 @@ export default function Account({ user }: { user: User }) {
             });
 
             const data = await response.json();
-            
+
             if (data) {
                 router.push("/auth/logout");
             }
@@ -23,60 +28,100 @@ export default function Account({ user }: { user: User }) {
         }
     }
 
-
     return (
-        <div className="flex-1 flex flex-col items-center justify-center py-12 px-4">
-            <div className="max-w-md w-full space-y-8 bg-white border border-gray-200 p-10 rounded-xl shadow-sm">
-                <div className="flex flex-col items-center space-y-4">
+        <div className="flex-1 flex flex-col items-center justify-center py-16 px-4">
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="w-full max-w-sm"
+            >
+                {/* Header */}
+                <div className="flex flex-col items-center gap-4 mb-8">
                     {user.picture ? (
                         <Image
                             src={user.picture}
                             alt="Profile picture"
-                            width={100}
-                            height={100}
-                            className="rounded-full shadow-sm border-2 border-gray-100"
+                            width={80}
+                            height={80}
+                            className="rounded-full border-2 border-brand/30"
                         />
                     ) : (
-                        <div className="w-25 h-25 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 text-3xl font-semibold border-2 border-gray-200">
-                            {user.name?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "?"}
+                        <div className="w-20 h-20 rounded-full bg-brand/10 border-2 border-brand/30 flex items-center justify-center">
+                            <User className="h-8 w-8 text-brand" />
                         </div>
                     )}
-                    <h2 className="text-center text-3xl font-extrabold text-gray-900">
-                        {user.name || "Your Account"}
-                    </h2>
-                    <p className="text-center text-sm text-gray-500">
-                        {user.email}
-                    </p>
+                    <div className="text-center">
+                        <h1 className="font-mono text-xl font-bold">{user.name || "Your Account"}</h1>
+                        <p className="font-mono text-xs opacity-50 mt-1">{user.email}</p>
+                    </div>
                 </div>
 
-                <div className="mt-8 border-t border-gray-100 pt-6">
-                    <dl className="divide-y divide-gray-100">
-                        <div className="py-3 flex justify-between text-sm font-medium">
-                            <dt className="text-gray-500">Nickname</dt>
-                            <dd className="text-gray-900">{user.nickname || "N/A"}</dd>
-                        </div>
-                        <div className="py-3 flex justify-between text-sm font-medium">
-                            <dt className="text-gray-500">Auth ID</dt>
-                            <dd className="text-gray-900 break-all ml-4 text-right overflow-hidden text-ellipsis">{user.sub?.split('|')[1] || user.sub}</dd>
-                        </div>
-                    </dl>
-                </div>
+                {/* Details */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15, duration: 0.5 }}
+                    className="border border-current/10 mb-6"
+                >
+                    <div className="px-5 py-3 border-b border-current/10 flex justify-between items-center">
+                        <span className="font-mono text-xs opacity-40 uppercase tracking-widest">Nickname</span>
+                        <span className="font-mono text-xs">{user.nickname || "N/A"}</span>
+                    </div>
+                    <div className="px-5 py-3 flex justify-between items-center gap-4">
+                        <span className="font-mono text-xs opacity-40 uppercase tracking-widest flex-none">Auth ID</span>
+                        <span className="font-mono text-xs opacity-60 truncate text-right">
+                            {user.sub?.split("|")[1] || user.sub}
+                        </span>
+                    </div>
+                </motion.div>
 
-                <div className="mt-6 flex gap-6">
+                {/* Actions */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3, duration: 0.5 }}
+                    className="flex flex-col gap-3"
+                >
                     <a
                         href="/auth/logout"
-                        className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-orange-300 hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-colors shadow-sm"
+                        className="flex items-center justify-center gap-2 w-full py-3 font-mono text-xs font-semibold border border-current/20 hover:border-brand hover:text-brand transition-colors"
                     >
-                        Sign out
+                        <LogOut size={14} />
+                        SIGN OUT
                     </a>
-                    <button
-                        className="group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors shadow-sm"
-                        onClick={handleDeleteAccount}
-                    >
-                        Delete account
-                    </button>
-                </div>
-            </div>
+
+                    {deleteConfirm ? (
+                        <div className="border border-red-500/30 p-4 flex flex-col gap-3">
+                            <p className="font-mono text-xs text-center opacity-60">
+                                This will permanently delete your account and all data.
+                            </p>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setDeleteConfirm(false)}
+                                    className="flex-1 py-2 font-mono text-xs border border-current/20 hover:opacity-60 transition-opacity"
+                                >
+                                    CANCEL
+                                </button>
+                                <button
+                                    onClick={handleDeleteAccount}
+                                    className="flex-1 py-2 font-mono text-xs font-semibold bg-red-600 hover:bg-red-700 text-white transition-colors"
+                                >
+                                    CONFIRM
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => setDeleteConfirm(true)}
+                            className="flex items-center justify-center gap-2 w-full py-3 font-mono text-xs font-semibold border border-red-500/30 text-red-500 opacity-60 hover:opacity-100 transition-opacity"
+                        >
+                            <Trash2 size={14} />
+                            DELETE ACCOUNT
+                        </button>
+                    )}
+                </motion.div>
+            </motion.div>
         </div>
     );
 }
