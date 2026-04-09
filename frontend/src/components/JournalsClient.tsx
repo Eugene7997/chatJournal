@@ -2,9 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { IoSearchOutline } from "react-icons/io5";
+import { Search, Trash2, Pencil } from "lucide-react";
 import type { Journal } from "@/lib/types/types";
-import { FaTrash, FaEdit } from "react-icons/fa";
 
 // ─── Date helpers ────────────────────────────────────────────────────────────
 
@@ -178,21 +177,21 @@ function Calendar({
     }
 
     return (
-        <div className="select-none p-4 border border-current/10 rounded-2xl">
+        <div className="select-none p-4 border border-current/10">
             {/* Month navigation */}
             <div className="flex items-center justify-between mb-4">
                 <button
                     onClick={goBack}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-current/10 transition-colors text-lg leading-none opacity-60 hover:opacity-100"
+                    className="w-7 h-7 flex items-center justify-center hover:text-brand transition-colors text-lg leading-none opacity-60 hover:opacity-100"
                 >
                     ‹
                 </button>
-                <span className="text-sm font-semibold">
+                <span className="font-mono text-xs font-bold uppercase tracking-widest opacity-60">
                     {MONTHS[viewMonth]} {viewYear}
                 </span>
                 <button
                     onClick={goForward}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-current/10 transition-colors text-lg leading-none opacity-60 hover:opacity-100"
+                    className="w-7 h-7 flex items-center justify-center hover:text-brand transition-colors text-lg leading-none opacity-60 hover:opacity-100"
                 >
                     ›
                 </button>
@@ -201,7 +200,7 @@ function Calendar({
             {/* Weekday headers */}
             <div className="grid grid-cols-7 mb-1">
                 {WEEKDAYS.map(d => (
-                    <span key={d} className="text-center text-xs opacity-30 py-1">
+                    <span key={d} className="text-center font-mono text-xs opacity-30 py-1">
                         {d}
                     </span>
                 ))}
@@ -219,15 +218,15 @@ function Calendar({
 
                     // Background strip for in-range days
                     let bgClass = "hover:bg-current/8";
-                    if (inRange && !edge) bgClass = "bg-blue-500/15";
-                    if (edge === "start") bgClass = "bg-gradient-to-r from-transparent to-blue-500/15";
-                    if (edge === "end") bgClass = "bg-gradient-to-l from-transparent to-blue-500/15";
+                    if (inRange && !edge) bgClass = "bg-brand/10";
+                    if (edge === "start") bgClass = "bg-gradient-to-r from-transparent to-brand/10";
+                    if (edge === "end") bgClass = "bg-gradient-to-l from-transparent to-brand/10";
                     if (edge === "single") bgClass = "";
 
                     // Inner circle for edge days
                     let circleClass = "";
-                    if (edge) circleClass = "bg-blue-500 text-white";
-                    else if (isToday && !inRange) circleClass = "ring-1 ring-current/30";
+                    if (edge) circleClass = "bg-brand text-white";
+                    else if (isToday && !inRange) circleClass = "ring-1 ring-brand/40";
 
                     return (
                         <div
@@ -238,12 +237,12 @@ function Calendar({
                             onMouseEnter={() => handleMouseEnter(day)}
                         >
                             <span
-                                className={`relative w-7 h-7 flex items-center justify-center rounded-full text-xs transition-colors ${circleClass}`}
+                                className={`relative w-7 h-7 flex items-center justify-center rounded-full font-mono text-xs transition-colors ${circleClass}`}
                             >
                                 {day.getDate()}
                                 {hasJournal && (
                                     <span
-                                        className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${edge ? "bg-white/70" : "bg-blue-500/60"}`}
+                                        className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${edge ? "bg-white/70" : "bg-brand/60"}`}
                                     />
                                 )}
                             </span>
@@ -257,7 +256,7 @@ function Calendar({
                 <div className="mt-3 flex justify-end">
                     <button
                         onClick={() => onRangeChange(null, null)}
-                        className="text-xs opacity-40 hover:opacity-70 transition-opacity"
+                        className="font-mono text-xs opacity-40 hover:opacity-70 hover:text-brand transition-colors"
                     >
                         Clear filter
                     </button>
@@ -312,7 +311,7 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
             }
             setJournalList([]);
             setDeleteConfirmPending(false);
-        } 
+        }
         catch (error) {
             console.error(`Error deleting all journals: ${error}`);
         }
@@ -343,7 +342,7 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
             }
             setJournalList(prev => prev.map(j => j.id === journal.id ? { ...j, title: editTitle, content: fullContent } : j));
             setEditingJournalId(null);
-        } 
+        }
         catch (error) {
             console.error(`Error saving journal: ${error}`);
         }
@@ -364,13 +363,13 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
         <div>
             {/* Search bar */}
             <div className="relative mb-8">
-                <IoSearchOutline className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40 text-lg" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40" size={16} />
                 <input
                     type="text"
                     placeholder="Search journals…"
                     value={search}
                     onChange={e => setSearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-current/15 bg-transparent focus:outline-none focus:border-current/40 transition-colors text-sm"
+                    className="w-full font-mono text-sm pl-10 pr-4 py-3 border border-current/15 bg-transparent focus:outline-none focus:border-brand transition-colors"
                 />
             </div>
 
@@ -378,16 +377,16 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                 <div className="flex justify-end items-center gap-3 mb-4">
                     {deleteConfirmPending ? (
                         <>
-                            <span className="text-xs opacity-60">This will permanently delete all your journals.</span>
+                            <span className="font-mono text-xs opacity-60">This will permanently delete all your journals.</span>
                             <button
                                 onClick={handleDeleteAllJournals}
-                                className="text-xs px-2.5 py-1 rounded-lg border border-red-500/40 text-red-500 opacity-70 hover:opacity-100 transition-opacity"
+                                className="font-mono text-xs px-3 py-1 border border-red-500/40 text-red-500 opacity-70 hover:opacity-100 transition-opacity"
                             >
                                 Confirm delete all
                             </button>
                             <button
                                 onClick={() => setDeleteConfirmPending(false)}
-                                className="text-xs opacity-50 hover:opacity-100 transition-opacity"
+                                className="font-mono text-xs opacity-50 hover:opacity-100 transition-opacity"
                             >
                                 Cancel
                             </button>
@@ -395,7 +394,7 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                     ) : (
                         <button
                             onClick={() => setDeleteConfirmPending(true)}
-                            className="text-xs opacity-50 hover:opacity-100 transition-opacity"
+                            className="font-mono text-xs opacity-40 hover:opacity-70 transition-opacity"
                         >
                             Delete all journals
                         </button>
@@ -406,7 +405,7 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
             <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 sm:items-start">
                 {/* Calendar sidebar */}
                 <div className="w-full sm:w-64 flex-none sm:sticky top-6">
-                    <p className="text-xs font-semibold uppercase tracking-widest opacity-30 mb-3">
+                    <p className="font-mono text-xs font-bold uppercase tracking-widest opacity-30 mb-3">
                         Filter by date
                     </p>
                     <Calendar
@@ -416,7 +415,7 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                         onRangeChange={(s, e) => { setRangeStart(s); setRangeEnd(e); }}
                     />
                     {rangeStart && rangeEnd && (
-                        <p className="mt-2 text-xs opacity-40 text-center">
+                        <p className="mt-2 font-mono text-xs opacity-40 text-center">
                             {rangeStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                             {" – "}
                             {rangeEnd.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
@@ -425,9 +424,9 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                 </div>
 
                 {/* Journal list */}
-                <div className="flex-1 flex flex-col gap-4 min-w-0">
+                <div className="flex-1 flex flex-col gap-3 min-w-0">
                     {filtered.length === 0 ? (
-                        <p className="opacity-40 text-sm text-center mt-16">
+                        <p className="font-mono text-xs opacity-40 text-center mt-16">
                             {search || rangeStart ? "No journals match your filters." : "No saved journals yet."}
                         </p>
                     ) : (
@@ -442,19 +441,19 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                             const { dateLine } = extractDateLine(journal.content);
 
                             return (
-                                <details key={journal.id} className="border border-current/10 rounded-2xl overflow-hidden group">
+                                <details key={journal.id} className="border border-current/10 overflow-hidden group">
                                     <summary className="px-4 sm:px-6 py-4 cursor-pointer flex flex-col sm:flex-row sm:justify-between sm:items-center hover:bg-current/5 transition-colors list-none gap-2 sm:gap-4">
                                         <div className="flex items-center gap-3 min-w-0">
-                                            <span className="font-semibold truncate">
+                                            <span className="font-mono font-semibold text-sm truncate">
                                                 {journal.title || date}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-3 flex-none">
-                                            <span className="text-xs opacity-30 hidden sm:inline">{date}</span>
+                                            <span className="font-mono text-xs opacity-30 hidden sm:inline">{date}</span>
                                             <Link
                                                 href={`/chat?session=${journal.session_id}`}
                                                 onClick={e => e.stopPropagation()}
-                                                className="text-xs px-2.5 py-1 rounded-lg border border-current/20 opacity-50 hover:opacity-100 transition-opacity whitespace-nowrap"
+                                                className="font-mono text-xs px-2.5 py-1 border border-current/20 opacity-50 hover:opacity-100 hover:border-brand hover:text-brand transition-colors whitespace-nowrap"
                                             >
                                                 View chat →
                                             </Link>
@@ -470,11 +469,11 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                                                     if (e.key === "Enter") handleSaveEdit(journal);
                                                     if (e.key === "Escape") handleCancelEdit();
                                                 }}
-                                                className="w-full px-3 py-2 rounded-lg border border-current/20 bg-transparent text-sm font-semibold focus:outline-none focus:border-current/40 transition-colors"
+                                                className="w-full font-mono text-sm px-3 py-2 border border-current/20 bg-transparent focus:outline-none focus:border-brand transition-colors"
                                                 placeholder="Title"
                                             />
                                             {dateLine && (
-                                                <p className="text-xs font-mono opacity-40 px-1">
+                                                <p className="font-mono text-xs opacity-40 px-1">
                                                     {dateLine} <span className="opacity-60">(not editable)</span>
                                                 </p>
                                             )}
@@ -483,19 +482,19 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                                                 onChange={e => setEditContent(e.target.value)}
                                                 onKeyDown={e => { if (e.key === "Escape") handleCancelEdit(); }}
                                                 rows={8}
-                                                className="w-full px-3 py-2 rounded-lg border border-current/20 bg-transparent font-mono text-sm focus:outline-none focus:border-current/40 transition-colors resize-y leading-relaxed"
+                                                className="w-full font-mono text-sm px-3 py-2 border border-current/20 bg-transparent focus:outline-none focus:border-brand transition-colors resize-y leading-relaxed"
                                                 placeholder="Journal content…"
                                             />
                                             <div className="flex justify-end gap-3">
                                                 <button
                                                     onClick={handleCancelEdit}
-                                                    className="text-xs opacity-50 hover:opacity-100 transition-opacity"
+                                                    className="font-mono text-xs opacity-50 hover:opacity-100 transition-opacity"
                                                 >
                                                     Cancel
                                                 </button>
                                                 <button
                                                     onClick={() => handleSaveEdit(journal)}
-                                                    className="text-xs px-2.5 py-1 rounded-lg border border-current/20 opacity-70 hover:opacity-100 transition-opacity"
+                                                    className="font-mono text-xs px-3 py-1.5 bg-brand hover:bg-brand/90 text-white transition-colors"
                                                 >
                                                     Save
                                                 </button>
@@ -503,24 +502,26 @@ export default function JournalsClient({ journals }: { journals: Journal[] }) {
                                         </div>
                                     ) : (
                                         <div className="px-6 py-4 border-t border-current/10">
-                                            <div className="flex justify-end gap-3 mb-2">
+                                            <div className="flex justify-end gap-3 mb-3">
                                                 <button
                                                     onClick={() => handleStartEdit(journal)}
-                                                    className="opacity-50 hover:opacity-100 transition-opacity"
+                                                    className="opacity-40 hover:opacity-100 hover:text-brand transition-colors"
+                                                    aria-label="Edit journal"
                                                 >
-                                                    <FaEdit />
+                                                    <Pencil size={15} />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteJournal(journal.id)}
-                                                    className="opacity-50 hover:opacity-100 transition-opacity"
+                                                    className="opacity-40 hover:opacity-100 hover:text-red-500 transition-colors"
+                                                    aria-label="Delete journal"
                                                 >
-                                                    <FaTrash />
+                                                    <Trash2 size={15} />
                                                 </button>
                                             </div>
                                             <div className="font-mono text-sm whitespace-pre-wrap leading-relaxed opacity-80">
                                                 {lines.map((line, i) => {
                                                     if (line.startsWith("Date:")) {
-                                                        return <p key={i} className="font-semibold opacity-100 mb-3">{line}</p>;
+                                                        return <p key={i} className="font-bold text-brand opacity-100 mb-3">{line}</p>;
                                                     }
                                                     if (line.startsWith("Feelings:")) {
                                                         return <p key={i} className="mt-3 opacity-60 italic">{line}</p>;
