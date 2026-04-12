@@ -4,6 +4,8 @@ A conversational journaling app. Instead of staring at a blank page, you journal
 
 ## Demo
 
+https://chatjournal-production.up.railway.app
+
 https://github.com/user-attachments/assets/2960bbec-3970-4869-89b0-ba7d56e35e68
 
 ## Tech Stack
